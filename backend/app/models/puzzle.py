@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, ForeignKey, String, UniqueConstraint
+from sqlalchemy import JSON, Date, DateTime, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -38,6 +38,12 @@ class Puzzle(Base):
         String(20),
         default="published",
         nullable=False,
+    )
+
+    puzzle_data: Mapped[dict] = mapped_column(
+        JSON,
+        nullable=False,
+        default=dict,
     )
 
     created_at: Mapped[datetime] = mapped_column(
