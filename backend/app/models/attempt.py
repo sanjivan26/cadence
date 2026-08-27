@@ -34,6 +34,17 @@ class PuzzleAttempt(Base):
         index=True,
     )
 
+    attempts: Mapped[int] = mapped_column(
+        Integer,
+        default=1,
+        nullable=False,
+    )
+    
+    completed: Mapped[bool] = mapped_column(
+        default=False,
+        nullable=False,
+    )
+
     score: Mapped[int] = mapped_column(
         Integer,
         nullable=False,

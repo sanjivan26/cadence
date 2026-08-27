@@ -41,6 +41,20 @@ def seed_initial_data(db: Session) -> None:
                 "type": "pixalbum",
                 "answer": "Random Access Memories",
                 "artist": "Daft Punk",
+                "clues": [
+                    {
+                        "type": "text",
+                        "value": "French electronic music duo",
+                    },
+                    {
+                        "type": "text",
+                        "value": "Released in 2013",
+                    },
+                    {
+                        "type": "text",
+                        "value": "Won Album of the Year at the Grammys",
+                    },
+                ],
             },
         )
 
