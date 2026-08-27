@@ -1,6 +1,0 @@
-.venv\Scripts\Activate.ps1
-uvicorn app.main:app --reload
-psql -U postgres -d cadence
-
-run from backend to reset today attempts
-python -c "from datetime import date; from app.core.database import SessionLocal; from app.models.attempt import PuzzleAttempt; from app.models.puzzle import Puzzle; db=SessionLocal(); p=db.query(Puzzle).filter(Puzzle.puzzle_date == date.today()).first(); db.query(PuzzleAttempt).filter(PuzzleAttempt.puzzle_id == p.id).delete(); db.commit(); db.close(); print('Todays attempts reset')"
