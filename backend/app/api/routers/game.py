@@ -1,6 +1,6 @@
-from datetime import date
-
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import date, timedelta
+from pathlib import Path
+from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -11,12 +11,37 @@ from app.models.user import User
 from app.api.dependencies import get_current_user
 from app.models.attempt import PuzzleAttempt
 from app.schemas.attempt import AttemptRequest, AttemptResponse
-
+from app.schemas.puzzle import PuzzleCreate
+from app.services.pixalbum import generate_pixalbum_images
 
 router = APIRouter(
     prefix="/games",
     tags=["Games"],
 )
+
+
+@router.get("/")
+def get_games(
+    db: Session = Depends(get_db),
+):
+    games = db.scalars(
+        select(Game)
+        .where(Game.is_active.is_(True))
+        .order_by(Game.id)
+    ).all()
+
+    return [
+        {
+            "slug": game.slug,
+            "name": game.name,
+            "description": game.description,
+        }
+        for game in games
+    ]
+    
+    
+
+
 
 
 @router.get(
@@ -68,30 +93,6 @@ def get_today_puzzle(
     attempts = attempt.attempts if attempt else 0
     completed = attempt.completed if attempt else False
 
-    # ---------------------------------------------------------
-    # PREPARE PUZZLE DATA
-    # ---------------------------------------------------------
-
-    puzzle_data = puzzle.puzzle_data.copy()
-
-    # Never expose the answer to the frontend.
-    puzzle_data.pop("answer", None)
-
-    # ---------------------------------------------------------
-    # IMAGE PROGRESSION
-    # ---------------------------------------------------------
-    #
-    # 0 attempts -> original.jpg
-    # 1 attempt  -> level1.jpg
-    # 2 attempts -> level2.jpg
-    # 3 attempts -> level3.jpg
-    # 4 attempts -> level4.jpg
-    # 5 attempts -> level5.jpg
-    #
-
-    attempts = attempt.attempts if attempt else 0
-    completed = attempt.completed if attempt else False
-
     puzzle_data = puzzle.puzzle_data.copy()
 
     # ---------------------------------------------------------
@@ -107,10 +108,19 @@ def get_today_puzzle(
     #
 
     if completed:
-        image_url = "/images/pixalbum/original.jpg"
+        image_url = (
+            f"/images/{game.slug}/"
+            f"{puzzle.puzzle_date}/original.jpg"
+        )
     else:
         image_level = min(attempts + 1, 5)
-        image_url = f"/images/pixalbum/level{image_level}.jpg"
+
+        image_url = (
+            f"/images/{game.slug}/"
+            f"{puzzle.puzzle_date}/"
+            f"level{image_level}.jpg"
+        )
+        
 
     puzzle_data["image_url"] = image_url
 
@@ -157,7 +167,7 @@ def get_today_puzzle(
     }
 
 
-    
+
 
 
 @router.post(
@@ -253,10 +263,19 @@ def submit_attempt(
     #
 
     if is_correct or current_attempt >= 5:
-        image_url = "/images/pixalbum/original.jpg"
+        image_url = (
+            f"/images/{game.slug}/"
+            f"{puzzle.puzzle_date}/"
+            f"original.jpg"
+        )
     else:
         image_level = current_attempt + 1
-        image_url = f"/images/pixalbum/level{image_level}.jpg"
+
+        image_url = (
+            f"/images/{game.slug}/"
+            f"{puzzle.puzzle_date}/"
+            f"level{image_level}.jpg"
+        )
 
     # ---------------------------------------------------------
     # CLUE PROGRESSION
@@ -288,7 +307,9 @@ def submit_attempt(
         score = scores.get(current_attempt, 25)
 
         attempt.score = score
+        attempt.solved = True
         attempt.completed = True
+        
 
         db.commit()
 
@@ -308,6 +329,7 @@ def submit_attempt(
 
     if current_attempt >= 5:
         attempt.score = 0
+        attempt.solved = False
         attempt.completed = True
 
         db.commit()
@@ -337,3 +359,161 @@ def submit_attempt(
         clues=clues,
         completed=False,
     )
+
+
+
+@router.get(
+    "/progress",
+)
+def get_progress(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # ---------------------------------------------------------
+    # ALL COMPLETED PUZZLES
+    # ---------------------------------------------------------
+
+    attempts = db.scalars(
+        select(PuzzleAttempt)
+        .where(
+            PuzzleAttempt.user_id == current_user.id,
+            PuzzleAttempt.completed.is_(True),
+        )
+        .order_by(PuzzleAttempt.completed_at.desc())
+    ).all()
+
+    completed_days = {
+        attempt.completed_at.date()
+        for attempt in attempts
+    }
+
+    today = date.today()
+
+    # ---------------------------------------------------------
+    # CURRENT STREAK
+    # ---------------------------------------------------------
+
+    current_streak = 0
+    check_date = today
+
+    while check_date in completed_days:
+        current_streak += 1
+        check_date -= timedelta(days=1)
+
+    # ---------------------------------------------------------
+    # BEST STREAK
+    # ---------------------------------------------------------
+
+    best_streak = 0
+    streak = 0
+    previous_date = None
+
+    for completed_date in sorted(completed_days):
+        if (
+            previous_date is not None
+            and (completed_date - previous_date).days == 1
+        ):
+            streak += 1
+        else:
+            streak = 1
+
+        best_streak = max(best_streak, streak)
+        previous_date = completed_date
+
+    # ---------------------------------------------------------
+    # TODAY'S GAME PROGRESS
+    # ---------------------------------------------------------
+
+    games = db.scalars(
+        select(Game)
+        .where(
+            Game.is_active.is_(True)
+        )
+        .order_by(Game.id)
+    ).all()
+
+    game_progress = []
+
+    for game in games:
+
+        today_puzzle = db.scalar(
+            select(Puzzle)
+            .where(
+                Puzzle.game_id == game.id,
+                Puzzle.puzzle_date == today,
+                Puzzle.status == "published",
+            )
+        )
+
+        completed = False
+
+        if today_puzzle:
+            today_attempt = db.scalar(
+                select(PuzzleAttempt)
+                .where(
+                    PuzzleAttempt.user_id == current_user.id,
+                    PuzzleAttempt.puzzle_id == today_puzzle.id,
+                )
+            )
+
+            if today_attempt:
+                completed = today_attempt.completed
+
+        game_progress.append({
+            "slug": game.slug,
+            "completed": completed,
+        })
+
+    # ---------------------------------------------------------
+    # RESPONSE
+    # ---------------------------------------------------------
+
+    return {
+        "current_streak": current_streak,
+        "best_streak": best_streak,
+        "completed": len(attempts),
+        "games": game_progress,
+    }
+
+
+@router.get("/history")
+def get_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    attempts = db.scalars(
+        select(PuzzleAttempt)
+        .where(
+            PuzzleAttempt.user_id == current_user.id,
+            PuzzleAttempt.completed.is_(True),
+        )
+        .order_by(PuzzleAttempt.completed_at.desc())
+    ).all()
+
+    history = []
+
+    for attempt in attempts:
+        puzzle = db.scalar(
+            select(Puzzle).where(
+                Puzzle.id == attempt.puzzle_id
+            )
+        )
+
+        if not puzzle:
+            continue
+
+        game = db.scalar(
+            select(Game).where(
+                Game.id == puzzle.game_id
+            )
+        )
+
+        history.append({
+            "puzzle_id": puzzle.id,
+            "game": game.name if game else "Unknown",
+            "date": puzzle.puzzle_date,
+            "attempts": attempt.attempts,
+            "solved": attempt.solved,
+        })
+
+    return history

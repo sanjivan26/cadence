@@ -55,3 +55,8 @@ class PuzzleAttempt(Base):
         default=datetime.utcnow,
         nullable=False,
     )
+    
+    solved: Mapped[bool] = mapped_column(
+    default=False,
+    nullable=False,
+)

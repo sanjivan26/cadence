@@ -2,6 +2,8 @@ from fastapi import FastAPI
 
 from app.api.routers.auth import router as auth_router
 from app.api.routers.game import router as game_router
+from app.api.routers.admin import router as admin_router
+
 from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi.staticfiles import StaticFiles
@@ -32,6 +34,7 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(game_router)
+app.include_router(admin_router)
 
 @app.get("/health")
 def health_check():
