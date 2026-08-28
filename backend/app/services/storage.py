@@ -2,9 +2,11 @@ import os
 
 from supabase import create_client, Client
 
+from app.core.config import settings
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
+
+SUPABASE_URL = settings.supabase_url
+SUPABASE_SERVICE_KEY = settings.supabase_service_key
 
 if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
     raise RuntimeError(
@@ -34,7 +36,7 @@ def upload_image(
         file=file_data,
         file_options={
             "content-type": "image/jpeg",
-            "upsert": True,
+            "upsert": "true",
         },
     )
 

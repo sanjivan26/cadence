@@ -1,5 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import axios from "axios";
 
 interface Clues {
@@ -41,6 +44,10 @@ interface AttemptResponse {
 function Puzzle() {
   const navigate = useNavigate();
 
+  const { gameSlug } = useParams<{
+    gameSlug: string;
+  }>();
+
   const [puzzle, setPuzzle] = useState<DailyPuzzle | null>(null);
   const [answer, setAnswer] = useState("");
   const [result, setResult] = useState<AttemptResponse | null>(null);
@@ -51,11 +58,17 @@ function Puzzle() {
 
   useEffect(() => {
     async function loadPuzzle() {
+      if (!gameSlug) {
+        setError("Invalid game.");
+        setLoading(false);
+        return;
+      }
+
       try {
         const token = localStorage.getItem("access_token");
 
         const response = await axios.get<DailyPuzzle>(
-          "http://127.0.0.1:8000/games/pixalbum/daily",
+          `http://127.0.0.1:8000/games/${gameSlug}/daily`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -75,7 +88,7 @@ function Puzzle() {
     }
 
     loadPuzzle();
-  }, []);
+  }, [gameSlug]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -91,7 +104,7 @@ function Puzzle() {
       const token = localStorage.getItem("access_token");
 
       const response = await axios.post<AttemptResponse>(
-        "http://127.0.0.1:8000/games/pixalbum/today/attempt",
+        `http://127.0.0.1:8000/games/${gameSlug}/today/attempt`,
         {
           answer: answer.trim(),
         },
@@ -103,7 +116,6 @@ function Puzzle() {
       );
 
       const data = response.data;
-
       setResult(data);
 
       /*
@@ -111,19 +123,25 @@ function Puzzle() {
        * the backend has decided to reveal.
        */
       setPuzzle((current) => {
-        if (!current) {
-          return current;
-        }
+        if (!current) return current;
+
+        // `data.attempts` is the attempt that was just submitted.
+        const attempts = data.attempts;
+
+        const clues: Clues = {
+          ...(data.clues || {}),
+        };
 
         return {
           ...current,
-          attempts: data.attempts,
+          attempts,
+          completed: data.completed,
           puzzle: {
             ...current.puzzle,
             data: {
               ...current.puzzle.data,
               image_url: data.image_url,
-              clues: data.clues,
+              clues,
             },
           },
         };
@@ -188,13 +206,15 @@ function Puzzle() {
           </p>
 
           <p>
-            Attempt {Math.min(puzzle.attempts + 1, 5)} of 5
+            {puzzle.attempts === 0
+              ? "Make your first guess"
+              : `${puzzle.attempts} of 5 attempts used`}
           </p>
 
           <div className="album-card">
             {puzzle.puzzle.data.image_url ? (
               <img
-                src={`http://127.0.0.1:8000${puzzle.puzzle.data.image_url}`}
+                src={puzzle.puzzle.data.image_url}
                 alt="Mystery album"
                 className="album-image"
               />
@@ -243,15 +263,17 @@ function Puzzle() {
           {!isCompleted ? (
             <form onSubmit={handleSubmit}>
               <input
+                className="answer-input"
                 type="text"
                 value={answer}
                 onChange={(event) =>
                   setAnswer(event.target.value)
                 }
-                placeholder="Enter album name"
+                placeholder="Enter album name..."
                 required
                 disabled={submitting}
               />
+
 
               <button
                 className="play-button"
@@ -265,11 +287,11 @@ function Puzzle() {
             </form>
           ) : (
             <div className="result-card">
-              <p className="result-eyebrow">
-                PUZZLE COMPLETE
+              <p className="eyebrow">
+                {result?.correct ? "PUZZLE COMPLETE" : "PUZZLE OVER"}
               </p>
 
-              <h2 className="result-title">
+              <h2>
                 {result?.correct
                   ? "Correct! 🎉"
                   : "Game Over"}
@@ -279,15 +301,24 @@ function Puzzle() {
                 {result?.message}
               </p>
 
-              <div className="result-score">
-                <span className="result-score-label">
-                  SCORE
+              {/* <div className="result-stat">
+                <span className="result-stat-label">
+                  ATTEMPTS
                 </span>
 
-                <span className="result-score-value">
-                  {result?.score ?? 0}
-                </span>
-              </div>
+                <strong>
+                  {result?.attempts}
+                </strong>
+              </div> */}
+
+              <p className="result-summary">
+                {result?.correct
+                  ? `Solved in ${result.attempts} ${result.attempts === 1
+                    ? "attempt"
+                    : "attempts"
+                  }.`
+                  : `You used all 5 attempts.`}
+              </p>
 
               <button
                 className="play-button"

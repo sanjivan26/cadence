@@ -29,8 +29,10 @@ router = APIRouter(
 )
 
 
-IMAGE_BASE_DIR = (
-    Path(__file__).resolve().parent.parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+IMAGE_DIR = (
+    BASE_DIR
     / "static"
     / "images"
     / "pixalbum"
@@ -59,17 +61,8 @@ async def create_puzzle(
     puzzle_status: str = Form("published"),
     image: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_admin),
 ):
-    # ---------------------------------------------------------
-    # CHECK ADMIN
-    # ---------------------------------------------------------
-
-    if not current_user.is_admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin access required",
-        )
 
     # ---------------------------------------------------------
     # FIND GAME
@@ -128,7 +121,7 @@ async def create_puzzle(
     # SAVE UPLOADED IMAGE
     # ---------------------------------------------------------
 
-    source_path = image_dir / "_upload.jpg"
+    source_path = image_dir / "original.jpg"
 
     try:
         contents = await image.read()
@@ -141,8 +134,7 @@ async def create_puzzle(
         # -----------------------------------------------------
 
         generate_pixalbum_images(
-            source_path=source_path,
-            output_dir=image_dir,
+            image_dir
         )
 
     except Exception as exc:
@@ -153,8 +145,44 @@ async def create_puzzle(
             detail=f"Unable to process image: {exc}",
         )
 
-    finally:
-        source_path.unlink(missing_ok=True)
+
+# ---------------------------------------------------------
+    # UPLOAD GENERATED IMAGES TO SUPABASE STORAGE
+    # ---------------------------------------------------------
+
+    storage_images = {}
+
+    for filename in [
+        "original.jpg",
+        "level1.jpg",
+        "level2.jpg",
+        "level3.jpg",
+        "level4.jpg",
+        "level5.jpg",
+    ]:
+        local_path = image_dir / filename
+
+        if not local_path.exists():
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Generated image not found: {filename}",
+            )
+
+        storage_path = (
+            f"{game_slug}/{puzzle_date}/{filename}"
+        )
+
+        try:
+            storage_images[filename[:-4]] = upload_image(
+                local_path=local_path,
+                storage_path=storage_path,
+            )
+        except Exception as exc:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Unable to upload {filename}: {exc}",
+            )
+
 
     # ---------------------------------------------------------
     # CREATE PUZZLE DATA
@@ -165,6 +193,7 @@ async def create_puzzle(
         "answer": answer,
         "artist": artist,
         "year": year,
+        "images": storage_images,
     }
 
     # ---------------------------------------------------------
@@ -191,24 +220,5 @@ async def create_puzzle(
         "puzzle_id": db_puzzle.id,
         "game": game.name,
         "date": puzzle_date,
-        "images": {
-            "original": (
-                f"/images/{game_slug}/{puzzle_date}/original.jpg"
-            ),
-            "level1": (
-                f"/images/{game_slug}/{puzzle_date}/level1.jpg"
-            ),
-            "level2": (
-                f"/images/{game_slug}/{puzzle_date}/level2.jpg"
-            ),
-            "level3": (
-                f"/images/{game_slug}/{puzzle_date}/level3.jpg"
-            ),
-            "level4": (
-                f"/images/{game_slug}/{puzzle_date}/level4.jpg"
-            ),
-            "level5": (
-                f"/images/{game_slug}/{puzzle_date}/level5.jpg"
-            ),
-        },
+        "images": storage_images,
     }

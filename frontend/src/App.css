@@ -299,3 +299,222 @@ button {
   font-size: 2.5rem;
   font-weight: 700;
 }
+
+.progress-grid {
+  width: 100%;
+  max-width: 700px;
+  margin: 2rem auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.progress-card {
+  padding: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  text-align: center;
+}
+
+.progress-label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  opacity: 0.45;
+}
+
+.progress-value {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 2rem;
+}
+
+.progress-unit {
+  font-size: 0.8rem;
+  opacity: 0.5;
+}
+
+.today-card {
+  width: 100%;
+  max-width: 700px;
+  margin: 1rem auto 0;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  text-align: left;
+}
+
+.today-card h2 {
+  margin: 0.25rem 0;
+}
+
+.today-card p:not(.eyebrow) {
+  opacity: 0.6;
+}
+
+.today-card .play-button {
+  margin-top: 1rem;
+}
+
+@media (max-width: 600px) {
+  .progress-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.history-section {
+  width: 100%;
+  max-width: 700px;
+  margin: 3rem auto 0;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.history-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.history-info,
+.history-result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.history-info span,
+.history-result span {
+  font-size: 0.75rem;
+  opacity: 0.45;
+}
+
+.history-result {
+  text-align: right;
+}
+
+.history-result strong {
+  font-size: 1.25rem;
+}
+
+.history-empty {
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.history-empty p {
+  margin: 0 0 0.35rem;
+}
+
+.history-empty span {
+  font-size: 0.85rem;
+  opacity: 0.45;
+}
+
+.games-section {
+  width: 100%;
+  max-width: 700px;
+  margin: 2rem auto 0;
+}
+
+.games-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.today-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: 100%;
+  padding: 1.5rem;
+  box-sizing: border-box;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.today-card h2 {
+  margin: 0 0 0.35rem;
+}
+
+.today-card p {
+  margin: 0;
+  opacity: 0.55;
+}
+
+.today-card .play-button {
+  flex-shrink: 0;
+}
+
+.auth-error {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  margin: 8px 0;
+}
+
+.answer-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 18px;
+
+  background: #111111;
+  color: #ffffff;
+
+  border: 1px solid #2d2d2d;
+  border-radius: 12px;
+
+  font-size: 16px;
+  font-family: inherit;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.answer-input::placeholder {
+  color: #777777;
+}
+
+.answer-input:hover {
+  border-color: #444444;
+}
+
+.answer-input:focus {
+  border-color: #8b5cf6;
+  background: #151515;
+
+  box-shadow:
+    0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.answer-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}

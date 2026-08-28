@@ -4,6 +4,8 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Puzzle from "./pages/Puzzle";
+import Register from "./pages/Register";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -13,11 +15,15 @@ function App() {
         {/* Public pages */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Protected pages */}
         <Route element={<ProtectedRoute />}>
           <Route path="/home" element={<Home />} />
-          <Route path="/games/pixalbum/daily" element={<Puzzle />} />
+          <Route
+            path="/games/:gameSlug/daily"
+            element={<Puzzle />}
+          />
         </Route>
       </Routes>
     </BrowserRouter>

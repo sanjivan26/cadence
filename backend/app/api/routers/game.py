@@ -94,6 +94,7 @@ def get_today_puzzle(
     completed = attempt.completed if attempt else False
 
     puzzle_data = puzzle.puzzle_data.copy()
+    
 
     # ---------------------------------------------------------
     # IMAGE PROGRESSION
@@ -107,25 +108,30 @@ def get_today_puzzle(
     # completed  -> original.jpg
     #
 
+    # ---------------------------------------------------------
+    # IMAGE PROGRESSION
+    # ---------------------------------------------------------
+
+    images = puzzle_data.get("images", {})
+
     if completed:
-        image_url = (
-            f"/images/{game.slug}/"
-            f"{puzzle.puzzle_date}/original.jpg"
-        )
+        image_url = images.get("original")
     else:
         image_level = min(attempts + 1, 5)
+        image_url = images.get(f"level{image_level}")
 
-        image_url = (
-            f"/images/{game.slug}/"
-            f"{puzzle.puzzle_date}/"
-            f"level{image_level}.jpg"
+    if not image_url:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Puzzle image not found",
         )
-        
 
     puzzle_data["image_url"] = image_url
 
     # Never expose the answer.
     puzzle_data.pop("answer", None)
+    
+    puzzle_data.pop("images", None)
 
     # ---------------------------------------------------------
     # CLUE PROGRESSION
@@ -134,11 +140,11 @@ def get_today_puzzle(
     clues: dict[str, object] = {}
 
     # Year becomes available after 3 attempts.
-    if attempts >= 3:
+    if attempts >= 2:
         clues["year"] = puzzle_data["year"]
 
     # Artist becomes available after 5 attempts.
-    if attempts >= 5:
+    if attempts >= 4:
         clues["artist"] = puzzle_data["artist"]
 
     # Don't expose these fields directly.
@@ -262,19 +268,22 @@ def submit_attempt(
     # Correct answer  -> original.jpg
     #
 
+    # ---------------------------------------------------------
+    # IMAGE PROGRESSION
+    # ---------------------------------------------------------
+
+    images = puzzle_data.get("images", {})
+
     if is_correct or current_attempt >= 5:
-        image_url = (
-            f"/images/{game.slug}/"
-            f"{puzzle.puzzle_date}/"
-            f"original.jpg"
-        )
+        image_url = images.get("original")
     else:
         image_level = current_attempt + 1
+        image_url = images.get(f"level{image_level}")
 
-        image_url = (
-            f"/images/{game.slug}/"
-            f"{puzzle.puzzle_date}/"
-            f"level{image_level}.jpg"
+    if not image_url:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Puzzle image URL not found",
         )
 
     # ---------------------------------------------------------
@@ -284,11 +293,11 @@ def submit_attempt(
     clues: dict[str, object] = {}
 
     # Year becomes available from guess 3.
-    if current_attempt >= 3:
+    if current_attempt >= 2:
         clues["year"] = puzzle_data["year"]
 
     # Artist becomes available on the final guess.
-    if current_attempt >= 5:
+    if current_attempt >= 4:
         clues["artist"] = puzzle_data["artist"]
 
     # ---------------------------------------------------------
