@@ -5,6 +5,8 @@ import {
 } from "react-router-dom";
 import axios from "axios";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 interface Clues {
   year?: number;
   artist?: string;
@@ -68,7 +70,7 @@ function Puzzle() {
         const token = localStorage.getItem("access_token");
 
         const response = await axios.get<DailyPuzzle>(
-          `http://127.0.0.1:8000/games/${gameSlug}/daily`,
+          `${API_URL}/games/${gameSlug}/daily`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -104,7 +106,7 @@ function Puzzle() {
       const token = localStorage.getItem("access_token");
 
       const response = await axios.post<AttemptResponse>(
-        `http://127.0.0.1:8000/games/${gameSlug}/today/attempt`,
+        `${API_URL}/games/${gameSlug}/today/attempt`,
         {
           answer: answer.trim(),
         },

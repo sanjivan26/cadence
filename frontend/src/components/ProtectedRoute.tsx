@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import axios from "axios";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function ProtectedRoute() {
   const location = useLocation();
 
@@ -20,7 +22,7 @@ function ProtectedRoute() {
 
       try {
         await axios.get(
-          "http://127.0.0.1:8000/auth/me",
+          `${API_URL}/auth/me`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

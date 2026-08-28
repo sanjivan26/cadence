@@ -12,11 +12,13 @@ export interface Progress {
     games: GameProgress[];
 }
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export async function getProgress(): Promise<Progress> {
     const token = localStorage.getItem("access_token");
 
     const response = await axios.get<Progress>(
-        "http://127.0.0.1:8000/games/progress",
+        `${API_URL}/games/progress`,
         {
             headers: {
                 Authorization: `Bearer ${token}`,

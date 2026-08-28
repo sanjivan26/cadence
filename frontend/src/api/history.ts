@@ -8,11 +8,13 @@ export interface HistoryItem {
     solved: boolean;
 }
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export async function getHistory(): Promise<HistoryItem[]> {
     const token = localStorage.getItem("access_token");
 
     const response = await axios.get<HistoryItem[]>(
-        "http://127.0.0.1:8000/games/history",
+        `${API_URL}/games/history`,
         {
             headers: {
                 Authorization: `Bearer ${token}`,

@@ -6,11 +6,13 @@ export interface Game {
     description: string | null;
 }
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export async function getGames(): Promise<Game[]> {
     const token = localStorage.getItem("access_token");
 
     const response = await axios.get<Game[]>(
-        "http://127.0.0.1:8000/games/",
+        `${API_URL}/games/`,
         {
             headers: {
                 Authorization: `Bearer ${token}`,
