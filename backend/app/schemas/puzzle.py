@@ -12,10 +12,3 @@ class DailyPuzzleResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-class PuzzleCreate(BaseModel):
-    game_slug: str
-    puzzle_date: date
-    puzzle_data: dict
-    status: str = "published"

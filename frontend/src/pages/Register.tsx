@@ -27,10 +27,29 @@ export default function Register() {
 
             navigate("/login");
         } catch (err: any) {
-            setError(
-                err?.response?.data?.detail ||
-                "Registration failed"
-            );
+            const detail = err?.response?.data?.detail;
+
+            if (Array.isArray(detail)) {
+                setError(
+                    detail
+                        .map((item: any) => {
+                            if (
+                                item.loc?.includes("password") &&
+                                item.type === "string_too_short"
+                            ) {
+                                return "Password must be at least 8 characters long.";
+                            }
+
+                            return item.msg || "Invalid input.";
+                        })
+                        .join(" ")
+                );
+            } else if (typeof detail === "string") {
+                setError(detail);
+            } else {
+                setError("Registration failed. Please check your details.");
+            }
+
         } finally {
             setLoading(false);
         }
