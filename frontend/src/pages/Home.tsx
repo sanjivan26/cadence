@@ -8,7 +8,8 @@ import {
   type HistoryItem,
 } from "../api/history";
 import { getGames, type Game } from "../api/games";
-
+import Sidebar from "../components/Sidebar";
+import { gameIcons } from "../components/GameIcons";
 
 function Home() {
   const navigate = useNavigate();
@@ -20,10 +21,6 @@ function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [error, setError] = useState("");
 
-  function handleLogout() {
-    localStorage.removeItem("access_token");
-    navigate("/login");
-  }
 
   useEffect(() => {
     async function loadHome() {
@@ -110,83 +107,15 @@ function Home() {
       </header>
 
       {menuOpen && (
-        <>
-          <div
-            className="menu-overlay"
-            onClick={() => setMenuOpen(false)}
-          />
-
-          <aside className="side-menu">
-            <div className="side-menu-header">
-              <div className="side-menu-logo">cadence</div>
-
-              <button
-                className="close-menu"
-                onClick={() => setMenuOpen(false)}
-                aria-label="Close menu"
-              >
-                ×
-              </button>
-            </div>
-
-            <nav className="side-menu-nav">
-
-              <div className="menu-section-title">
-                Games
-              </div>
-
-              {games.map((game) => (
-                <button
-                  key={game.slug}
-                  onClick={() => {
-                    setMenuOpen(false);
-                    navigate(`/games/${game.slug}`);
-                  }}
-                >
-                  <span className="game-menu-icon">♪</span>
-                  {game.name}
-                </button>
-
-
-              ))}
-              {user.is_admin && (
-                <>
-                  <div className="menu-section-title admin-menu-title">
-                    Admin
-                  </div>
-
-                  <button
-                    className="admin-menu-button"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      navigate("/admin/puzzles");
-                    }}
-                  >
-                    <span className="game-menu-icon">+</span>
-                    Add Puzzle
-                  </button>
-                </>
-              )}
-
-            </nav>
-
-            <div className="side-menu-bottom">
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  handleLogout();
-                }}
-              >
-                <span>↪</span>
-                Logout
-              </button>
-            </div>
-          </aside>
-        </>
+        <Sidebar
+          games={games}
+          user={user}
+          onClose={() => setMenuOpen(false)}
+        />
       )}
 
-      <main className="main-content">
-        <section className="hero">
+      <main className="home-content">
+        <section className="welcome-section">
 
           <p className="eyebrow">
             WELCOME BACK
@@ -246,52 +175,125 @@ function Home() {
 
           </div>
 
-          <div className="games-section">
+
+
+          <div className="dailies-section">
+
             <p className="eyebrow">
               TODAY'S GAMES
             </p>
 
-            <div className="games-list">
+            <div className="daily-grid">
+
               {games.map((game) => {
+
                 const gameProgress = progress.games.find(
                   (item) => item.slug === game.slug
                 );
 
-                const completed = gameProgress?.completed ?? false;
+                const completed =
+                  gameProgress?.completed ?? false;
+
+                const historyItem = history.find(
+                  (item) => item.game === game.name
+                );
+
+                const solved =
+                  historyItem?.solved ?? false;
+
+                const attempts =
+                  historyItem?.attempts ?? 0;
 
                 return (
                   <div
-                    className="today-card"
+                    className="daily-card"
                     key={game.slug}
                   >
-                    <div>
-                      <h2>{game.name}</h2>
 
-                      <p>
-                        {game.description}
-                      </p>
+                    {/* HEADER */}
+                    <div className="daily-card-header">
+
+                      <h2>
+                        {game.name}
+                      </h2>
+
+                      <span
+                        className={`daily-card-status ${completed ? "status-done" : "status-live"
+                          }`}
+                      >
+                        {completed ? "DONE" : "LIVE"}
+                      </span>
+
                     </div>
 
-                    <button
-                      className="play-button"
-                      onClick={() => {
-                        if (!completed) {
-                          navigate(
-                            `/games/${game.slug}/daily`
-                          );
-                        }
-                      }}
-                      disabled={completed}
-                    >
-                      {completed
-                        ? "Completed ✓"
-                        : "Play →"}
-                    </button>
+
+                    {/* CONTENT */}
+                    <div className="landing-album">
+
+                      <div className="landing-album-art">
+                        {gameIcons[game.slug] ?? "♪"}
+                      </div>
+
+                      <div className="landing-album-info">
+
+                        <p className="landing-album-type">
+                          DAILY PUZZLE
+                        </p>
+
+                        <h3>
+                          {game.name}
+                        </h3>
+
+                        <p>
+                          {game.description}
+                        </p>
+
+                      </div>
+
+                    </div>
+
+
+                    {/* FOOTER */}
+                    <div className="daily-card-footer">
+
+                      <span className="daily-card-result">
+                        {!completed
+                          ? "New puzzle every day"
+                          : solved
+                            ? `Solved in ${attempts} ${attempts === 1
+                              ? "try"
+                              : "tries"
+                            }`
+                            : "Better luck next time"}
+                      </span>
+
+                      <button
+                        className="daily-card-button"
+                        onClick={() => {
+                          if (!completed) {
+                            navigate(
+                              `/games/${game.slug}/daily`
+                            );
+                          }
+                        }}
+                      >
+                        {!completed
+                          ? "Play"
+                          : solved
+                            ? "Solved ✓"
+                            : "Played"}
+                      </button>
+
+                    </div>
+
                   </div>
                 );
               })}
+
             </div>
+
           </div>
+
 
           <div className="history-section">
             <p className="eyebrow">RECENT PUZZLES</p>

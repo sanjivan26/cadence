@@ -21,6 +21,10 @@ function AdminPuzzles() {
     const [message, setMessage] = useState("");
     const [error, setError] = useState("");
 
+    // ---------------------------------------------------------
+    // LOAD GAMES
+    // ---------------------------------------------------------
+
     useEffect(() => {
         async function loadGames() {
             try {
@@ -31,7 +35,8 @@ function AdminPuzzles() {
                 if (data.length > 0) {
                     setGameSlug(data[0].slug);
                 }
-            } catch {
+            } catch (err) {
+                console.error("Failed to load games:", err);
                 setError("Unable to load games.");
             } finally {
                 setLoadingGames(false);
@@ -41,6 +46,10 @@ function AdminPuzzles() {
         loadGames();
     }, []);
 
+    // ---------------------------------------------------------
+    // SUBMIT PUZZLE
+    // ---------------------------------------------------------
+
     async function handleSubmit(
         event: React.FormEvent<HTMLFormElement>
     ) {
@@ -49,13 +58,39 @@ function AdminPuzzles() {
         setMessage("");
         setError("");
 
+        // Validate image
         if (!image) {
             setError("Please select an image.");
             return;
         }
 
+        // Validate game
         if (!gameSlug) {
             setError("Please select a game.");
+            return;
+        }
+
+        // Validate date
+        if (!puzzleDate) {
+            setError("Please select a puzzle date.");
+            return;
+        }
+
+        // Validate answer
+        if (!answer.trim()) {
+            setError("Please enter an answer.");
+            return;
+        }
+
+        // Validate artist
+        if (!artist.trim()) {
+            setError("Please enter the artist.");
+            return;
+        }
+
+        // Validate year
+        if (!year) {
+            setError("Please enter the release year.");
             return;
         }
 
@@ -66,19 +101,37 @@ function AdminPuzzles() {
 
             formData.append("game_slug", gameSlug);
             formData.append("puzzle_date", puzzleDate);
-            formData.append("answer", answer);
-            formData.append("artist", artist);
+            formData.append("answer", answer.trim());
+            formData.append("artist", artist.trim());
             formData.append("year", year);
             formData.append("puzzle_status", puzzleStatus);
             formData.append("image", image);
 
-            await api.post("/admin/puzzles", formData);
+            // IMPORTANT:
+            // This endpoint expects multipart/form-data.
+            //
+            // Do NOT manually add a boundary.
+            // Axios/browser will generate it automatically.
+            const response = await api.post(
+                "/admin/puzzles",
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
+
+            console.log("Puzzle created:", response.data);
 
             setMessage("Puzzle created successfully.");
 
+            // Reset form
+            setPuzzleDate("");
             setAnswer("");
             setArtist("");
             setYear("");
+            setPuzzleStatus("published");
             setImage(null);
 
             const fileInput = document.getElementById(
@@ -88,22 +141,59 @@ function AdminPuzzles() {
             if (fileInput) {
                 fileInput.value = "";
             }
-        } catch (err: any) {
-            const detail =
-                err?.response?.data?.detail;
 
-            setError(
-                detail || "Unable to create puzzle."
-            );
+        } catch (err: any) {
+            console.error("Puzzle creation failed:", err);
+
+            const status = err?.response?.status;
+            const detail = err?.response?.data?.detail;
+
+            if (status === 409) {
+                setError(
+                    detail ||
+                    "A puzzle already exists for this game and date."
+                );
+            } else if (status === 403) {
+                setError(
+                    detail ||
+                    "You do not have administrator access."
+                );
+            } else if (status === 404) {
+                setError(
+                    detail ||
+                    "The selected game could not be found."
+                );
+            } else if (status === 422) {
+                setError(
+                    detail ||
+                    "Some puzzle fields are invalid or missing."
+                );
+            } else if (status === 400) {
+                setError(
+                    detail ||
+                    "The uploaded image could not be processed."
+                );
+            } else {
+                setError(
+                    detail ||
+                    "Unable to create puzzle."
+                );
+            }
         } finally {
             setLoading(false);
         }
     }
 
+    // ---------------------------------------------------------
+    // UI
+    // ---------------------------------------------------------
+
     return (
         <div className="app admin-page">
 
-            {/* Navbar */}
+            {/* =================================================
+                NAVBAR
+               ================================================= */}
 
             <header className="navbar">
 
@@ -131,7 +221,10 @@ function AdminPuzzles() {
 
             </header>
 
-            {/* Content */}
+
+            {/* =================================================
+                CONTENT
+               ================================================= */}
 
             <main className="admin-content">
 
@@ -151,12 +244,19 @@ function AdminPuzzles() {
 
                 </section>
 
+
+                {/* =================================================
+                    FORM
+                   ================================================= */}
+
                 <form
                     className="puzzle-form"
                     onSubmit={handleSubmit}
                 >
 
-                    {/* Game */}
+                    {/* -------------------------
+                        GAME
+                       ------------------------- */}
 
                     <div className="form-group">
 
@@ -170,8 +270,20 @@ function AdminPuzzles() {
                             onChange={(event) =>
                                 setGameSlug(event.target.value)
                             }
-                            disabled={loadingGames || loading}
+                            disabled={
+                                loadingGames ||
+                                loading
+                            }
+                            required
                         >
+                            {games.length === 0 && (
+                                <option value="">
+                                    {loadingGames
+                                        ? "Loading games..."
+                                        : "No games available"}
+                                </option>
+                            )}
+
                             {games.map((game) => (
                                 <option
                                     key={game.slug}
@@ -184,7 +296,10 @@ function AdminPuzzles() {
 
                     </div>
 
-                    {/* Date */}
+
+                    {/* -------------------------
+                        DATE
+                       ------------------------- */}
 
                     <div className="form-group">
 
@@ -197,7 +312,9 @@ function AdminPuzzles() {
                             type="date"
                             value={puzzleDate}
                             onChange={(event) =>
-                                setPuzzleDate(event.target.value)
+                                setPuzzleDate(
+                                    event.target.value
+                                )
                             }
                             required
                             disabled={loading}
@@ -205,7 +322,10 @@ function AdminPuzzles() {
 
                     </div>
 
-                    {/* Answer */}
+
+                    {/* -------------------------
+                        ANSWER
+                       ------------------------- */}
 
                     <div className="form-group">
 
@@ -216,10 +336,12 @@ function AdminPuzzles() {
                         <input
                             id="answer"
                             type="text"
-                            placeholder="e.g. Abbey Road"
+                            placeholder="e.g. In Rainbows"
                             value={answer}
                             onChange={(event) =>
-                                setAnswer(event.target.value)
+                                setAnswer(
+                                    event.target.value
+                                )
                             }
                             required
                             disabled={loading}
@@ -227,7 +349,10 @@ function AdminPuzzles() {
 
                     </div>
 
-                    {/* Artist */}
+
+                    {/* -------------------------
+                        ARTIST
+                       ------------------------- */}
 
                     <div className="form-group">
 
@@ -238,10 +363,12 @@ function AdminPuzzles() {
                         <input
                             id="artist"
                             type="text"
-                            placeholder="e.g. The Beatles"
+                            placeholder="e.g. Radiohead"
                             value={artist}
                             onChange={(event) =>
-                                setArtist(event.target.value)
+                                setArtist(
+                                    event.target.value
+                                )
                             }
                             required
                             disabled={loading}
@@ -249,7 +376,10 @@ function AdminPuzzles() {
 
                     </div>
 
-                    {/* Year */}
+
+                    {/* -------------------------
+                        YEAR
+                       ------------------------- */}
 
                     <div className="form-group">
 
@@ -260,12 +390,14 @@ function AdminPuzzles() {
                         <input
                             id="year"
                             type="number"
-                            placeholder="1969"
+                            placeholder="2007"
                             min="1900"
                             max="2100"
                             value={year}
                             onChange={(event) =>
-                                setYear(event.target.value)
+                                setYear(
+                                    event.target.value
+                                )
                             }
                             required
                             disabled={loading}
@@ -273,7 +405,10 @@ function AdminPuzzles() {
 
                     </div>
 
-                    {/* Status */}
+
+                    {/* -------------------------
+                        STATUS
+                       ------------------------- */}
 
                     <div className="form-group">
 
@@ -285,7 +420,9 @@ function AdminPuzzles() {
                             id="status"
                             value={puzzleStatus}
                             onChange={(event) =>
-                                setPuzzleStatus(event.target.value)
+                                setPuzzleStatus(
+                                    event.target.value
+                                )
                             }
                             disabled={loading}
                         >
@@ -304,7 +441,10 @@ function AdminPuzzles() {
 
                     </div>
 
-                    {/* Image */}
+
+                    {/* -------------------------
+                        IMAGE
+                       ------------------------- */}
 
                     <div className="form-group">
 
@@ -318,11 +458,13 @@ function AdminPuzzles() {
                                 id="puzzle-image"
                                 type="file"
                                 accept="image/*"
-                                onChange={(event) =>
-                                    setImage(
-                                        event.target.files?.[0] || null
-                                    )
-                                }
+                                onChange={(event) => {
+                                    const selectedFile =
+                                        event.target.files?.[0] ||
+                                        null;
+
+                                    setImage(selectedFile);
+                                }}
                                 required
                                 disabled={loading}
                             />
@@ -336,13 +478,16 @@ function AdminPuzzles() {
                         </div>
 
                         <span className="form-help">
-                            The image will automatically be processed
-                            into the puzzle levels.
+                            The image will automatically be
+                            processed into the puzzle levels.
                         </span>
 
                     </div>
 
-                    {/* Feedback */}
+
+                    {/* -------------------------
+                        ERROR
+                       ------------------------- */}
 
                     {error && (
                         <div className="form-error">
@@ -350,18 +495,30 @@ function AdminPuzzles() {
                         </div>
                     )}
 
+
+                    {/* -------------------------
+                        SUCCESS
+                       ------------------------- */}
+
                     {message && (
                         <div className="form-success">
                             {message}
                         </div>
                     )}
 
-                    {/* Submit */}
+
+                    {/* -------------------------
+                        SUBMIT
+                       ------------------------- */}
 
                     <button
                         type="submit"
                         className="admin-submit"
-                        disabled={loading}
+                        disabled={
+                            loading ||
+                            loadingGames ||
+                            games.length === 0
+                        }
                     >
                         {loading
                             ? "Creating puzzle..."

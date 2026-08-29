@@ -1,52 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Top-left crosshair -->
+<svg
+  width="64"
+  height="64"
+  viewBox="0 0 64 64"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <!-- Top-left -->
   <path
     d="M8 20V8H20"
-    fill="none"
     stroke="white"
     stroke-width="3"
     stroke-linecap="round"
     stroke-linejoin="round"
   />
 
-  <!-- Top-right crosshair -->
+  <!-- Top-right -->
   <path
     d="M44 8H56V20"
-    fill="none"
     stroke="white"
     stroke-width="3"
     stroke-linecap="round"
     stroke-linejoin="round"
   />
 
-  <!-- Bottom-left crosshair -->
+  <!-- Bottom-left -->
   <path
     d="M8 44V56H20"
-    fill="none"
     stroke="white"
     stroke-width="3"
     stroke-linecap="round"
     stroke-linejoin="round"
   />
 
-  <!-- Bottom-right crosshair -->
+  <!-- Bottom-right -->
   <path
     d="M56 44V56H44"
-    fill="none"
     stroke="white"
     stroke-width="3"
     stroke-linecap="round"
     stroke-linejoin="round"
   />
 
-  <!-- Purple quaver -->
+  <!-- Home -->
   <path
-    d="M34 13H48V20L38 23V40
-       C38 45 34 49 28 49
-       C23 49 19 46 19 42
-       C19 38 23 35 28 35
-       C30 35 32 35.5 34 37
-       V13Z"
+    d="M22 31L32 22L42 31V45
+       H35V38
+       H29V45
+       H22V31Z"
     fill="#A855F7"
   />
 </svg>

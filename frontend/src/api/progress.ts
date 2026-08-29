@@ -3,6 +3,8 @@ import axios from "axios";
 export interface GameProgress {
     slug: string;
     completed: boolean;
+    solved: boolean;
+    attempts: number
 }
 
 export interface Progress {

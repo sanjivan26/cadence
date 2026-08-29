@@ -1,9 +1,10 @@
 import { useEffect, useState, type FormEvent } from "react";
-import {
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+
+import Sidebar from "../components/Sidebar";
+import { getCurrentUser, type User } from "../api/auth";
+import { getGames, type Game } from "../api/games";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -50,16 +51,39 @@ function Puzzle() {
     gameSlug: string;
   }>();
 
-  const [puzzle, setPuzzle] = useState<DailyPuzzle | null>(null);
-  const [answer, setAnswer] = useState("");
-  const [result, setResult] = useState<AttemptResponse | null>(null);
+  const [puzzle, setPuzzle] =
+    useState<DailyPuzzle | null>(null);
 
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [user, setUser] =
+    useState<User | null>(null);
+
+  const [games, setGames] =
+    useState<Game[]>([]);
+
+  const [answer, setAnswer] =
+    useState("");
+
+  const [result, setResult] =
+    useState<AttemptResponse | null>(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [submitting, setSubmitting] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  const [menuOpen, setMenuOpen] =
+    useState(false);
+
+  // ---------------------------------------------------------
+  // LOAD PUZZLE + USER + GAMES
+  // ---------------------------------------------------------
 
   useEffect(() => {
-    async function loadPuzzle() {
+    async function loadPage() {
       if (!gameSlug) {
         setError("Invalid game.");
         setLoading(false);
@@ -67,18 +91,32 @@ function Puzzle() {
       }
 
       try {
-        const token = localStorage.getItem("access_token");
+        const token =
+          localStorage.getItem("access_token");
 
-        const response = await axios.get<DailyPuzzle>(
-          `${API_URL}/games/${gameSlug}/daily`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const [
+          puzzleResponse,
+          userData,
+          gamesData,
+        ] = await Promise.all([
+          axios.get<DailyPuzzle>(
+            `${API_URL}/games/${gameSlug}/daily`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          ),
 
-        setPuzzle(response.data);
+          getCurrentUser(),
+
+          getGames(),
+        ]);
+
+        setPuzzle(puzzleResponse.data);
+        setUser(userData);
+        setGames(gamesData);
+
       } catch (err: any) {
         setError(
           err.response?.data?.detail ||
@@ -89,13 +127,23 @@ function Puzzle() {
       }
     }
 
-    loadPuzzle();
+    loadPage();
   }, [gameSlug]);
 
-  async function handleSubmit(event: FormEvent) {
+  // ---------------------------------------------------------
+  // SUBMIT ANSWER
+  // ---------------------------------------------------------
+
+  async function handleSubmit(
+    event: FormEvent
+  ) {
     event.preventDefault();
 
-    if (!answer.trim() || submitting || !puzzle) {
+    if (
+      !answer.trim() ||
+      submitting ||
+      !puzzle
+    ) {
       return;
     }
 
@@ -103,32 +151,30 @@ function Puzzle() {
     setError("");
 
     try {
-      const token = localStorage.getItem("access_token");
+      const token =
+        localStorage.getItem("access_token");
 
-      const response = await axios.post<AttemptResponse>(
-        `${API_URL}/games/${gameSlug}/today/attempt`,
-        {
-          answer: answer.trim(),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+      const response =
+        await axios.post<AttemptResponse>(
+          `${API_URL}/games/${gameSlug}/today/attempt`,
+          {
+            answer: answer.trim(),
           },
-        }
-      );
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
       const data = response.data;
+
       setResult(data);
 
-      /*
-       * Update the puzzle with only the information
-       * the backend has decided to reveal.
-       */
       setPuzzle((current) => {
-        if (!current) return current;
-
-        // `data.attempts` is the attempt that was just submitted.
-        const attempts = data.attempts;
+        if (!current) {
+          return current;
+        }
 
         const clues: Clues = {
           ...(data.clues || {}),
@@ -136,7 +182,7 @@ function Puzzle() {
 
         return {
           ...current,
-          attempts,
+          attempts: data.attempts,
           completed: data.completed,
           puzzle: {
             ...current.puzzle,
@@ -150,6 +196,7 @@ function Puzzle() {
       });
 
       setAnswer("");
+
     } catch (err: any) {
       setError(
         err.response?.data?.detail ||
@@ -160,191 +207,493 @@ function Puzzle() {
     }
   }
 
-  if (loading) {
-    return <p>Loading today's puzzle...</p>;
-  }
+  // ---------------------------------------------------------
+  // NAVBAR
+  // ---------------------------------------------------------
 
-  if (error && !puzzle) {
+  function Navbar() {
     return (
-      <div>
-        <p>{error}</p>
-
-        <button onClick={() => navigate("/home")}>
-          Back to Home
-        </button>
-      </div>
-    );
-  }
-
-  if (!puzzle) {
-    return <p>No puzzle available.</p>;
-  }
-
-  const isCompleted = result?.completed ?? puzzle.completed;
-
-  return (
-    <div className="app">
       <header className="navbar">
-        <button
-          className="menu-button"
-          aria-label="Open menu"
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
 
-        <div className="logo">cadence</div>
+        <div className="navbar-left">
+
+          <button
+            className="menu-button"
+            aria-label="Open menu"
+            onClick={() =>
+              setMenuOpen(true)
+            }
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          <div className="logo">
+            cadence
+          </div>
+
+        </div>
 
         <div className="navbar-right">
-          <span className="streak">🔥 7</span>
+
+          <div className="streak">
+
+            <span className="streak-icon">
+              🔥
+            </span>
+
+            <span>
+              7 day streak
+            </span>
+
+          </div>
+
+          <div className="navbar-divider"></div>
 
           <button
             className="profile-button"
             aria-label="Profile"
+            onClick={() =>
+              navigate("/home")
+            }
           >
-            ◉
+
+            <div className="profile-avatar">
+              {user
+                ? user.username
+                  .charAt(0)
+                  .toUpperCase()
+                : "C"}
+            </div>
+
+            <span className="profile-name">
+              {user?.username ?? "Profile"}
+            </span>
+
           </button>
+
         </div>
+
       </header>
+    );
+  }
 
-      <main className="main-content">
-        <section className="hero">
-          <p className="eyebrow">TODAY'S PUZZLE</p>
+  // ---------------------------------------------------------
+  // LOADING
+  // ---------------------------------------------------------
 
-          <h1>{puzzle.game.name}</h1>
+  if (loading) {
+    return (
+      <div className="app">
 
-          <p className="subtitle">
-            {puzzle.game.description}
+        <Navbar />
+
+        <main className="puzzle-page-state">
+          <p>
+            Loading today's puzzle...
           </p>
+        </main>
+
+      </div>
+    );
+  }
+
+  // ---------------------------------------------------------
+  // ERROR
+  // ---------------------------------------------------------
+
+  if (error && !puzzle) {
+    return (
+      <div className="app">
+
+        <Navbar />
+
+        {menuOpen && user && (
+          <Sidebar
+            games={games}
+            user={user}
+            onClose={() =>
+              setMenuOpen(false)
+            }
+          />
+        )}
+
+        <main className="puzzle-page-state">
 
           <p>
+            {error}
+          </p>
+
+          <button
+            className="play-button"
+            onClick={() =>
+              navigate("/home")
+            }
+          >
+            Back to Home
+          </button>
+
+        </main>
+
+      </div>
+    );
+  }
+
+  // ---------------------------------------------------------
+  // NO PUZZLE
+  // ---------------------------------------------------------
+
+  if (!puzzle) {
+    return (
+      <div className="app">
+
+        <Navbar />
+
+        {menuOpen && user && (
+          <Sidebar
+            games={games}
+            user={user}
+            onClose={() =>
+              setMenuOpen(false)
+            }
+          />
+        )}
+
+        <main className="puzzle-page-state">
+
+          <p>
+            No puzzle available.
+          </p>
+
+          <button
+            className="play-button"
+            onClick={() =>
+              navigate("/home")
+            }
+          >
+            Back to Home
+          </button>
+
+        </main>
+
+      </div>
+    );
+  }
+
+  const isCompleted =
+    result?.completed ??
+    puzzle.completed;
+
+  // ---------------------------------------------------------
+  // MAIN PAGE
+  // ---------------------------------------------------------
+
+  return (
+    <div className="app">
+
+      <Navbar />
+
+      {/* =====================================================
+          SIDEBAR
+          ===================================================== */}
+
+      {menuOpen && user && (
+        <Sidebar
+          games={games}
+          user={user}
+          onClose={() =>
+            setMenuOpen(false)
+          }
+        />
+      )}
+
+      {/* =====================================================
+          PUZZLE CONTENT
+          ===================================================== */}
+
+      <main className="puzzle-content">
+
+        {/* ===================================================
+            HEADER
+            =================================================== */}
+
+        <section className="puzzle-header">
+
+          <p className="eyebrow">
+            TODAY'S PUZZLE
+          </p>
+
+          <h1>
+            {puzzle.game.name}
+          </h1>
+
+          {puzzle.game.description && (
+            <p className="puzzle-subtitle">
+              {puzzle.game.description}
+            </p>
+          )}
+
+          <div className="attempt-status">
+
             {puzzle.attempts === 0
               ? "Make your first guess"
               : `${puzzle.attempts} of 5 attempts used`}
-          </p>
+
+          </div>
+
+        </section>
+
+        {/* ===================================================
+            ALBUM
+            =================================================== */}
+
+        <section className="puzzle-card">
+
+          <div className="puzzle-card-header">
+
+            <span>
+              Guess the album
+            </span>
+
+            <span className="puzzle-live">
+              DAILY
+            </span>
+
+          </div>
 
           <div className="album-card">
+
             {puzzle.puzzle.data.image_url ? (
+
               <img
-                src={puzzle.puzzle.data.image_url}
+                src={
+                  puzzle.puzzle.data.image_url
+                }
                 alt="Mystery album"
                 className="album-image"
               />
+
             ) : (
-              <div className="album-placeholder">?</div>
+
+              <div className="album-placeholder">
+                ?
+              </div>
+
             )}
 
             <div className="album-info">
+
               <p className="game-name">
                 Guess the album
               </p>
 
               <p className="game-description">
-                Use the clues and enter your answer below.
+                Use the clues and enter
+                your answer below.
               </p>
+
             </div>
+
           </div>
 
-          {puzzle.puzzle.data.clues &&
-            Object.keys(puzzle.puzzle.data.clues).length > 0 && (
-              <div className="clues">
-                <h2>Clues</h2>
+        </section>
 
-                <div className="clue-list">
-                  {puzzle.puzzle.data.clues.year !== undefined && (
-                    <div className="clue">
-                      <span className="clue-label">YEAR</span>
-                      <span className="clue-value">
-                        {puzzle.puzzle.data.clues.year}
-                      </span>
-                    </div>
-                  )}
+        {/* ===================================================
+            CLUES
+            =================================================== */}
 
-                  {puzzle.puzzle.data.clues.artist && (
-                    <div className="clue">
-                      <span className="clue-label">ARTIST</span>
-                      <span className="clue-value">
-                        {puzzle.puzzle.data.clues.artist}
-                      </span>
-                    </div>
-                  )}
-                </div>
+        {puzzle.puzzle.data.clues &&
+          Object.keys(
+            puzzle.puzzle.data.clues
+          ).length > 0 && (
+
+            <section className="clues">
+
+              <div className="section-header">
+
+                <p className="eyebrow">
+                  CLUES
+                </p>
+
               </div>
-            )}
 
-          {!isCompleted ? (
-            <form onSubmit={handleSubmit}>
+              <div className="clue-list">
+
+                {puzzle.puzzle.data.clues.year !==
+                  undefined && (
+
+                    <div className="clue">
+
+                      <span className="clue-label">
+                        YEAR
+                      </span>
+
+                      <span className="clue-value">
+                        {
+                          puzzle.puzzle.data
+                            .clues.year
+                        }
+                      </span>
+
+                    </div>
+
+                  )}
+
+                {puzzle.puzzle.data.clues.artist && (
+
+                  <div className="clue">
+
+                    <span className="clue-label">
+                      ARTIST
+                    </span>
+
+                    <span className="clue-value">
+                      {
+                        puzzle.puzzle.data
+                          .clues.artist
+                      }
+                    </span>
+
+                  </div>
+
+                )}
+
+              </div>
+
+            </section>
+
+          )}
+
+        {/* ===================================================
+            ANSWER
+            =================================================== */}
+
+        {!isCompleted ? (
+
+          <section className="answer-section">
+
+            <form
+              onSubmit={handleSubmit}
+            >
+
+              <label
+                htmlFor="answer"
+                className="answer-label"
+              >
+                Your answer
+              </label>
+
               <input
+                id="answer"
                 className="answer-input"
                 type="text"
                 value={answer}
                 onChange={(event) =>
-                  setAnswer(event.target.value)
+                  setAnswer(
+                    event.target.value
+                  )
                 }
                 placeholder="Enter album name..."
                 required
                 disabled={submitting}
+                autoComplete="off"
               />
-
 
               <button
                 className="play-button"
                 type="submit"
                 disabled={submitting}
               >
+
                 {submitting
-                  ? "Submitting..."
+                  ? "Checking..."
                   : "Submit Answer"}
+
               </button>
+
             </form>
-          ) : (
-            <div className="result-card">
-              <p className="eyebrow">
-                {result?.correct ? "PUZZLE COMPLETE" : "PUZZLE OVER"}
-              </p>
 
-              <h2>
-                {result?.correct
-                  ? "Correct! 🎉"
-                  : "Game Over"}
-              </h2>
+          </section>
 
-              <p className="result-message">
-                {result?.message}
-              </p>
+        ) : (
 
-              {/* <div className="result-stat">
-                <span className="result-stat-label">
-                  ATTEMPTS
-                </span>
+          /* =================================================
+             RESULT
+             ================================================= */
 
-                <strong>
-                  {result?.attempts}
-                </strong>
-              </div> */}
+          <section className="result-card">
 
-              <p className="result-summary">
-                {result?.correct
-                  ? `Solved in ${result.attempts} ${result.attempts === 1
-                    ? "attempt"
-                    : "attempts"
-                  }.`
-                  : `You used all 5 attempts.`}
-              </p>
+            <p className="result-eyebrow">
 
-              <button
-                className="play-button"
-                onClick={() => navigate("/home")}
-              >
-                Back to Home
-              </button>
+              {result?.correct
+                ? "PUZZLE COMPLETE"
+                : "PUZZLE OVER"}
+
+            </p>
+
+            <h2 className="result-title">
+
+              {result?.correct
+                ? "Correct! 🎉"
+                : "Game Over"}
+
+            </h2>
+
+            <p className="result-message">
+              {result?.message}
+            </p>
+
+            <div className="result-score">
+
+              <span className="result-score-label">
+                SCORE
+              </span>
+
+              <span className="result-score-value">
+                {result?.score ?? 0}
+              </span>
+
             </div>
-          )}
 
-          {error && <p>{error}</p>}
-        </section>
+            <p className="result-summary">
+
+              {result?.correct
+                ? `Solved in ${result.attempts} ${result.attempts === 1
+                  ? "attempt"
+                  : "attempts"
+                }.`
+                : "You used all 5 attempts."}
+
+            </p>
+
+            <button
+              className="play-button"
+              onClick={() =>
+                navigate("/home")
+              }
+            >
+              Back to Home
+            </button>
+
+          </section>
+
+        )}
+
+        {/* ===================================================
+            ERROR
+            =================================================== */}
+
+        {error && puzzle && (
+
+          <div className="puzzle-error">
+            {error}
+          </div>
+
+        )}
+
       </main>
+
     </div>
   );
 }

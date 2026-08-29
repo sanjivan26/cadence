@@ -1,20 +1,26 @@
 import "../App.css";
 import { useNavigate } from "react-router-dom";
+import { gameIcons } from "../components/GameIcons";
 
 function Landing() {
   const navigate = useNavigate();
 
   return (
     <div className="app landing-page">
+
       {/* =========================================
           NAVBAR
           ========================================= */}
       <header className="navbar">
+
         <div className="navbar-left">
-          <div className="logo">cadence</div>
+          <div className="logo">
+            cadence
+          </div>
         </div>
 
         <div className="navbar-right">
+
           <button
             className="landing-login"
             onClick={() => navigate("/login")}
@@ -28,8 +34,11 @@ function Landing() {
           >
             Sign up
           </button>
+
         </div>
+
       </header>
+
 
       {/* =========================================
           MAIN
@@ -38,14 +47,15 @@ function Landing() {
 
         {/* Hero */}
         <section className="landing-hero">
-          <p className="landing-eyebrow">
-            DAILY PUZZLES
-          </p>
+
+          {/* <p className="landing-eyebrow">
+            WELCOME TO CADENCE
+          </p> */}
 
           <h1>
-            One puzzle.
+            Music puzzles,
             <br />
-            Every day.
+            Every day!
           </h1>
 
           <p className="landing-subtitle">
@@ -55,6 +65,7 @@ function Landing() {
           </p>
 
           <div className="landing-actions">
+
             <button
               className="landing-play"
               onClick={() => navigate("/home")}
@@ -62,14 +73,19 @@ function Landing() {
               Play today's puzzle
               <span>→</span>
             </button>
+
           </div>
+
         </section>
+
 
         {/* Today's game */}
         <section className="landing-game">
 
           <div className="landing-game-header">
+
             <div>
+
               <p className="landing-game-label">
                 TODAY'S GAME
               </p>
@@ -77,20 +93,24 @@ function Landing() {
               <h2>
                 PixAlbum
               </h2>
+
             </div>
 
             <span className="landing-live">
               LIVE
             </span>
+
           </div>
+
 
           <div className="landing-album">
 
             <div className="landing-album-art">
-              <span>?</span>
+              {gameIcons.pixalbum}
             </div>
 
             <div className="landing-album-info">
+
               <p className="landing-album-type">
                 DAILY PUZZLE
               </p>
@@ -102,11 +122,14 @@ function Landing() {
               <p>
                 Guess the album from the visual clues.
               </p>
+
             </div>
 
           </div>
 
+
           <div className="landing-game-footer">
+
             <span>
               New puzzle every day
             </span>
@@ -116,11 +139,13 @@ function Landing() {
             >
               Play
             </button>
+
           </div>
 
         </section>
 
       </main>
+
     </div>
   );
 }
