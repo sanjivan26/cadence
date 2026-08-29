@@ -27,7 +27,7 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "https://cadence-phi-flame.vercel.app",
         "https://cadence-ravpgrxou-sanjivan26s-projects.vercel.app",
-        "cadence-game.vercel.app",
+        "https://cadence-game.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
