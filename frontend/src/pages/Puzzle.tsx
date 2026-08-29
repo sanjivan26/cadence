@@ -185,16 +185,27 @@ function Puzzle() {
   return (
     <div className="app">
       <header className="navbar">
+        <button
+          className="menu-button"
+          aria-label="Open menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
         <div className="logo">cadence</div>
 
-        <nav>
+        <div className="navbar-right">
+          <span className="streak">🔥 7</span>
+
           <button
-            className="nav-button"
-            onClick={() => navigate("/home")}
+            className="profile-button"
+            aria-label="Profile"
           >
-            Home
+            ◉
           </button>
-        </nav>
+        </div>
       </header>
 
       <main className="main-content">

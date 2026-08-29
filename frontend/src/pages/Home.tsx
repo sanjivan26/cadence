@@ -9,6 +9,7 @@ import {
 } from "../api/history";
 import { getGames, type Game } from "../api/games";
 
+
 function Home() {
   const navigate = useNavigate();
 
@@ -16,10 +17,13 @@ function Home() {
   const [progress, setProgress] = useState<Progress | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [games, setGames] = useState<Game[]>([]);
-
+  const [menuOpen, setMenuOpen] = useState(false);
   const [error, setError] = useState("");
 
-
+  function handleLogout() {
+    localStorage.removeItem("access_token");
+    navigate("/login");
+  }
 
   useEffect(() => {
     async function loadHome() {
@@ -59,19 +63,127 @@ function Home() {
   return (
     <div className="app">
       <header className="navbar">
-        <div className="logo">
-          cadence
+
+        <div className="navbar-left">
+
+          <button
+            className="menu-button"
+            aria-label="Open menu"
+            onClick={() => setMenuOpen(true)}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          <div className="logo">
+            cadence
+          </div>
+
         </div>
 
-        <nav>
+
+        <div className="navbar-right">
+
+          <div className="streak">
+            <span className="streak-icon">🔥</span>
+            <span>{progress.current_streak}</span>
+          </div>
+
+          <div className="navbar-divider"></div>
+
           <button
-            className="nav-button"
-            onClick={() => navigate("/")}
+            className="profile-button"
+            onClick={() => setMenuOpen(true)}
           >
-            Home
+            <span className="profile-avatar">
+              {user.username.charAt(0).toUpperCase()}
+            </span>
+
+            <span className="profile-name">
+              {user.username}
+            </span>
           </button>
-        </nav>
+
+        </div>
+
       </header>
+
+      {menuOpen && (
+        <>
+          <div
+            className="menu-overlay"
+            onClick={() => setMenuOpen(false)}
+          />
+
+          <aside className="side-menu">
+            <div className="side-menu-header">
+              <div className="side-menu-logo">cadence</div>
+
+              <button
+                className="close-menu"
+                onClick={() => setMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                ×
+              </button>
+            </div>
+
+            <nav className="side-menu-nav">
+
+              <div className="menu-section-title">
+                Games
+              </div>
+
+              {games.map((game) => (
+                <button
+                  key={game.slug}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    navigate(`/games/${game.slug}`);
+                  }}
+                >
+                  <span className="game-menu-icon">♪</span>
+                  {game.name}
+                </button>
+
+
+              ))}
+              {user.is_admin && (
+                <>
+                  <div className="menu-section-title admin-menu-title">
+                    Admin
+                  </div>
+
+                  <button
+                    className="admin-menu-button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      navigate("/admin/puzzles");
+                    }}
+                  >
+                    <span className="game-menu-icon">+</span>
+                    Add Puzzle
+                  </button>
+                </>
+              )}
+
+            </nav>
+
+            <div className="side-menu-bottom">
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  handleLogout();
+                }}
+              >
+                <span>↪</span>
+                Logout
+              </button>
+            </div>
+          </aside>
+        </>
+      )}
 
       <main className="main-content">
         <section className="hero">

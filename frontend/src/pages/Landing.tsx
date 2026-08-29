@@ -5,30 +5,42 @@ function Landing() {
   const navigate = useNavigate();
 
   return (
-    <div className="app">
+    <div className="app landing-page">
+      {/* =========================================
+          NAVBAR
+          ========================================= */}
       <header className="navbar">
-        <div className="logo">cadence</div>
+        <div className="navbar-left">
+          <div className="logo">cadence</div>
+        </div>
 
-        <nav>
+        <div className="navbar-right">
           <button
-            className="nav-button"
+            className="landing-login"
             onClick={() => navigate("/login")}
           >
-            Login
+            Log in
           </button>
 
           <button
-            className="nav-button primary"
+            className="landing-signup"
             onClick={() => navigate("/register")}
           >
-            Sign Up
+            Sign up
           </button>
-        </nav>
+        </div>
       </header>
 
-      <main className="main-content">
-        <section className="hero">
-          <p className="eyebrow">DAILY PUZZLES</p>
+      {/* =========================================
+          MAIN
+          ========================================= */}
+      <main className="landing-content">
+
+        {/* Hero */}
+        <section className="landing-hero">
+          <p className="landing-eyebrow">
+            DAILY PUZZLES
+          </p>
 
           <h1>
             One puzzle.
@@ -36,36 +48,78 @@ function Landing() {
             Every day.
           </h1>
 
-          <p className="subtitle">
+          <p className="landing-subtitle">
             Challenge yourself with a new puzzle every day.
-            Track your progress and build your streak.
+            Track your progress, build your streak, and see
+            how far you can go.
           </p>
 
-          <button
-            className="play-button"
-            onClick={() => navigate("/home")}
-          >
-            Play today's puzzle →
-          </button>
+          <div className="landing-actions">
+            <button
+              className="landing-play"
+              onClick={() => navigate("/home")}
+            >
+              Play today's puzzle
+              <span>→</span>
+            </button>
+          </div>
         </section>
 
-        <section className="game-preview">
-          <div className="preview-header">
-            <span>Today's game</span>
-            <span className="status">LIVE</span>
+        {/* Today's game */}
+        <section className="landing-game">
+
+          <div className="landing-game-header">
+            <div>
+              <p className="landing-game-label">
+                TODAY'S GAME
+              </p>
+
+              <h2>
+                PixAlbum
+              </h2>
+            </div>
+
+            <span className="landing-live">
+              LIVE
+            </span>
           </div>
 
-          <div className="album-card">
-            <div className="album-placeholder">?</div>
+          <div className="landing-album">
 
-            <div className="album-info">
-              <p className="game-name">PixAlbum</p>
-              <p className="game-description">
+            <div className="landing-album-art">
+              <span>?</span>
+            </div>
+
+            <div className="landing-album-info">
+              <p className="landing-album-type">
+                DAILY PUZZLE
+              </p>
+
+              <h3>
+                PixAlbum
+              </h3>
+
+              <p>
                 Guess the album from the visual clues.
               </p>
             </div>
+
           </div>
+
+          <div className="landing-game-footer">
+            <span>
+              New puzzle every day
+            </span>
+
+            <button
+              onClick={() => navigate("/home")}
+            >
+              Play
+            </button>
+          </div>
+
         </section>
+
       </main>
     </div>
   );
