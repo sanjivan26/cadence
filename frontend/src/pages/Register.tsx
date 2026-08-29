@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { register } from "../api/auth";
+import LoadingScreen from "../components/LoadingScreen";
 
 export default function Register() {
     const navigate = useNavigate();
@@ -47,27 +48,41 @@ export default function Register() {
             } else if (typeof detail === "string") {
                 setError(detail);
             } else {
-                setError("Registration failed. Please check your details.");
+                setError(
+                    "Registration failed. Please check your details."
+                );
             }
 
-        } finally {
             setLoading(false);
         }
+    }
+
+    // Show custom loading screen while creating account
+    if (loading) {
+        return (
+            <LoadingScreen message="Creating your account..." />
+        );
     }
 
     return (
         <div className="auth-page">
             <div className="auth-card">
+
                 <h1>Create Account</h1>
 
-                <p>Join Cadence and start playing.</p>
+                <p>
+                    Join Cadence and start playing.
+                </p>
 
                 <form onSubmit={handleSubmit}>
+
                     <input
                         type="text"
                         placeholder="Username"
                         value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        onChange={(e) =>
+                            setUsername(e.target.value)
+                        }
                         required
                     />
 
@@ -75,7 +90,9 @@ export default function Register() {
                         type="email"
                         placeholder="Email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) =>
+                            setEmail(e.target.value)
+                        }
                         required
                     />
 
@@ -83,7 +100,9 @@ export default function Register() {
                         type="password"
                         placeholder="Password"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        onChange={(e) =>
+                            setPassword(e.target.value)
+                        }
                         required
                     />
 
@@ -97,19 +116,24 @@ export default function Register() {
                         type="submit"
                         disabled={loading}
                     >
-                        {loading ? "Creating account..." : "Register"}
+                        Register
                     </button>
+
                 </form>
 
                 <p>
                     Already have an account?{" "}
+
                     <button
                         type="button"
-                        onClick={() => navigate("/login")}
+                        onClick={() =>
+                            navigate("/login")
+                        }
                     >
                         Login
                     </button>
                 </p>
+
             </div>
         </div>
     );

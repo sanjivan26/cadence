@@ -9,6 +9,7 @@ import {
 } from "../api/history";
 import { getGames, type Game } from "../api/games";
 import Sidebar from "../components/Sidebar";
+import LoadingScreen from "../components/LoadingScreen";
 import { gameIcons } from "../components/GameIcons";
 
 function Home() {
@@ -54,7 +55,9 @@ function Home() {
   }
 
   if (!user || !progress) {
-    return <p>Loading...</p>;
+    return (
+      <LoadingScreen message="Loading..." />
+    );
   }
 
   return (

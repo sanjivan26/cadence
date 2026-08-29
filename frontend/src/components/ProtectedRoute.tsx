@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import axios from "axios";
+import LoadingScreen from "./LoadingScreen";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -43,7 +44,7 @@ function ProtectedRoute() {
   }, []);
 
   if (checking) {
-    return <p>Checking authentication...</p>;
+    return <LoadingScreen message="Checking authentication..." />
   }
 
   if (!authenticated) {

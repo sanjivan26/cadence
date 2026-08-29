@@ -1,6 +1,8 @@
 import { type FormEvent, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
 import { loginUser } from "../api/auth";
+import LoadingScreen from "../components/LoadingScreen";
 
 function Login() {
   const navigate = useNavigate();
@@ -41,9 +43,16 @@ function Login() {
         err.response?.data?.detail ||
         "Login failed. Please try again."
       );
-    } finally {
+
       setLoading(false);
     }
+  }
+
+  // Show custom loading screen while logging in
+  if (loading) {
+    return (
+      <LoadingScreen message="Checking your credentials..." />
+    );
   }
 
   return (
@@ -51,6 +60,7 @@ function Login() {
       <h1>Login</h1>
 
       <form onSubmit={handleSubmit}>
+
         <div>
           <label>Email</label>
 
@@ -77,14 +87,17 @@ function Login() {
           />
         </div>
 
-        {error && <p>{error}</p>}
+        {error && (
+          <p>{error}</p>
+        )}
 
         <button
           type="submit"
           disabled={loading}
         >
-          {loading ? "Logging in..." : "Login"}
+          Login
         </button>
+
       </form>
     </div>
   );

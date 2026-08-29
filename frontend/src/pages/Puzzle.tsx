@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 import Sidebar from "../components/Sidebar";
+import LoadingScreen from "../components/LoadingScreen";
 import { getCurrentUser, type User } from "../api/auth";
 import { getGames, type Game } from "../api/games";
 
@@ -285,17 +286,7 @@ function Puzzle() {
 
   if (loading) {
     return (
-      <div className="app">
-
-        <Navbar />
-
-        <main className="puzzle-page-state">
-          <p>
-            Loading today's puzzle...
-          </p>
-        </main>
-
-      </div>
+      <LoadingScreen message="Loading today's puzzle..." />
     );
   }
 
