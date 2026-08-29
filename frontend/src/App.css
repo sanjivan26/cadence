@@ -2558,3 +2558,269 @@ form {
   background: #24182e !important;
   color: #ffffff !important;
 }
+
+/* =========================================
+   ADMIN — ADD PUZZLE
+   ========================================= */
+
+.admin-page {
+  min-height: 100vh;
+  background: #0f0f0f;
+}
+
+/* Admin navbar */
+
+.admin-nav-label {
+  color: #71717a;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Main */
+
+.admin-content {
+  width: min(680px, 92%);
+  margin: 0 auto;
+  padding: 64px 0 100px;
+}
+
+/* Header */
+
+.admin-header {
+  margin-bottom: 36px;
+}
+
+.admin-header .eyebrow {
+  margin-bottom: 10px;
+}
+
+.admin-header h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(34px, 5vw, 48px);
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.admin-header p:last-child {
+  margin: 14px 0 0;
+  color: #71717a;
+  font-size: 14px;
+}
+
+/* Form */
+
+.puzzle-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+  padding: 28px;
+
+  background: #181818;
+
+  border: 1px solid #383838;
+  border-radius: 10px;
+}
+
+/* Form group */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  color: #d4d4d8;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Inputs */
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  height: 44px;
+  padding: 0 13px;
+
+  background: #111111;
+  color: #ffffff;
+
+  border: 1px solid #404040;
+  border-radius: 6px;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.form-group input:hover,
+.form-group select:hover {
+  border-color: #555555;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #a855f7;
+  background: #151515;
+}
+
+/* Date input */
+
+.form-group input[type="date"] {
+  color-scheme: dark;
+}
+
+/* Select */
+
+.form-group select {
+  cursor: pointer;
+}
+
+/* File */
+
+.file-input {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+
+  background: #111111;
+
+  border: 1px dashed #4a4a4a;
+  border-radius: 6px;
+
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.file-input:hover {
+  border-color: #666666;
+  background: #141414;
+}
+
+.file-input input[type="file"] {
+  height: auto;
+  padding: 0;
+
+  border: none;
+  background: transparent;
+
+  font-size: 12px;
+  color: #a1a1aa;
+}
+
+.file-input input[type="file"]:focus {
+  border: none;
+  background: transparent;
+}
+
+/* Selected file */
+
+.selected-file {
+  color: #c084fc;
+  font-size: 12px;
+}
+
+/* Help text */
+
+.form-help {
+  color: #52525b;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Feedback */
+
+.form-error,
+.form-success {
+  padding: 12px 14px;
+
+  border-radius: 6px;
+
+  font-size: 13px;
+}
+
+.form-error {
+  color: #fca5a5;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+}
+
+.form-success {
+  color: #86efac;
+  background: rgba(74, 222, 128, 0.08);
+  border: 1px solid rgba(74, 222, 128, 0.25);
+}
+
+/* Submit */
+
+.admin-submit {
+  width: 100%;
+  height: 44px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: #a855f7;
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.admin-submit:hover:not(:disabled) {
+  background: #9333ea;
+  transform: translateY(-1px);
+}
+
+.admin-submit:disabled {
+  background: #27272a;
+  color: #71717a;
+  cursor: not-allowed;
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+
+  .admin-content {
+    width: 92%;
+    padding-top: 45px;
+  }
+
+  .puzzle-form {
+    padding: 20px;
+  }
+
+  .admin-header h1 {
+    letter-spacing: -1.5px;
+  }
+
+}
+
+.admin-section-title {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #27272a;
+}
+
+.admin-section-title+button .game-menu-icon {
+  color: #a855f7;
+}

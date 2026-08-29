@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Puzzle from "./pages/Puzzle";
 import Register from "./pages/Register";
+import AdminPuzzles from "./pages/AdminPuzzles";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -19,6 +20,10 @@ function App() {
 
         {/* Protected pages */}
         <Route element={<ProtectedRoute />}>
+          <Route
+            path="/admin/puzzles"
+            element={<AdminPuzzles />}
+          />
           <Route path="/home" element={<Home />} />
           <Route
             path="/games/:gameSlug/daily"
