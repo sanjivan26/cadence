@@ -22,6 +22,9 @@ function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [error, setError] = useState("");
 
+  // ---------------------------------------------------------
+  // LOAD HOME DATA
+  // ---------------------------------------------------------
 
   useEffect(() => {
     async function loadHome() {
@@ -42,7 +45,9 @@ function Home() {
         setProgress(progressData);
         setHistory(historyData);
         setGames(gamesData);
-      } catch {
+
+      } catch (err) {
+        console.error(err);
         setError("Unable to load your account.");
       }
     }
@@ -50,9 +55,17 @@ function Home() {
     loadHome();
   }, []);
 
+  // ---------------------------------------------------------
+  // ERROR
+  // ---------------------------------------------------------
+
   if (error) {
     return <p>{error}</p>;
   }
+
+  // ---------------------------------------------------------
+  // LOADING
+  // ---------------------------------------------------------
 
   if (!user || !progress) {
     return (
@@ -60,8 +73,17 @@ function Home() {
     );
   }
 
+  // ---------------------------------------------------------
+  // PAGE
+  // ---------------------------------------------------------
+
   return (
     <div className="app">
+
+      {/* =====================================================
+          NAVBAR
+          ===================================================== */}
+
       <header className="navbar">
 
         <div className="navbar-left">
@@ -82,12 +104,18 @@ function Home() {
 
         </div>
 
-
         <div className="navbar-right">
 
           <div className="streak">
-            <span className="streak-icon">🔥</span>
-            <span>{progress.current_streak}</span>
+
+            <span className="streak-icon">
+              🔥
+            </span>
+
+            <span>
+              {progress.current_streak}
+            </span>
+
           </div>
 
           <div className="navbar-divider"></div>
@@ -96,6 +124,7 @@ function Home() {
             className="profile-button"
             onClick={() => setMenuOpen(true)}
           >
+
             <span className="profile-avatar">
               {user.username.charAt(0).toUpperCase()}
             </span>
@@ -103,11 +132,16 @@ function Home() {
             <span className="profile-name">
               {user.username}
             </span>
+
           </button>
 
         </div>
 
       </header>
+
+      {/* =====================================================
+          SIDEBAR
+          ===================================================== */}
 
       {menuOpen && (
         <Sidebar
@@ -117,8 +151,17 @@ function Home() {
         />
       )}
 
+      {/* =====================================================
+          MAIN CONTENT
+          ===================================================== */}
+
       <main className="home-content">
+
         <section className="welcome-section">
+
+          {/* =================================================
+              WELCOME
+              ================================================= */}
 
           <p className="eyebrow">
             WELCOME BACK
@@ -132,9 +175,14 @@ function Home() {
             Keep your streak going.
           </p>
 
+          {/* =================================================
+              PROGRESS
+              ================================================= */}
+
           <div className="progress-grid">
 
             <div className="progress-card">
+
               <span className="progress-label">
                 CURRENT STREAK
               </span>
@@ -146,9 +194,11 @@ function Home() {
               <span className="progress-unit">
                 days
               </span>
+
             </div>
 
             <div className="progress-card">
+
               <span className="progress-label">
                 BEST STREAK
               </span>
@@ -160,9 +210,11 @@ function Home() {
               <span className="progress-unit">
                 days
               </span>
+
             </div>
 
             <div className="progress-card">
+
               <span className="progress-label">
                 COMPLETED
               </span>
@@ -174,11 +226,14 @@ function Home() {
               <span className="progress-unit">
                 puzzles
               </span>
+
             </div>
 
           </div>
 
-
+          {/* =================================================
+              TODAY'S GAMES
+              ================================================= */}
 
           <div className="dailies-section">
 
@@ -190,22 +245,29 @@ function Home() {
 
               {games.map((game) => {
 
-                const gameProgress = progress.games.find(
-                  (item) => item.slug === game.slug
-                );
+                /*
+                 * IMPORTANT:
+                 *
+                 * Today's game state comes from progress.games.
+                 *
+                 * Do NOT use history here because history can
+                 * contain older puzzles for the same game.
+                 */
+
+                const gameProgress =
+                  progress.games.find(
+                    (item) =>
+                      item.slug === game.slug
+                  );
 
                 const completed =
                   gameProgress?.completed ?? false;
 
-                const historyItem = history.find(
-                  (item) => item.game === game.name
-                );
-
                 const solved =
-                  historyItem?.solved ?? false;
+                  gameProgress?.solved ?? false;
 
                 const attempts =
-                  historyItem?.attempts ?? 0;
+                  gameProgress?.attempts ?? 0;
 
                 return (
                   <div
@@ -213,7 +275,10 @@ function Home() {
                     key={game.slug}
                   >
 
-                    {/* HEADER */}
+                    {/* =================================================
+                        HEADER
+                        ================================================= */}
+
                     <div className="daily-card-header">
 
                       <h2>
@@ -221,16 +286,22 @@ function Home() {
                       </h2>
 
                       <span
-                        className={`daily-card-status ${completed ? "status-done" : "status-live"
+                        className={`daily-card-status ${completed
+                            ? "status-done"
+                            : "status-live"
                           }`}
                       >
-                        {completed ? "DONE" : "LIVE"}
+                        {completed
+                          ? "DONE"
+                          : "LIVE"}
                       </span>
 
                     </div>
 
+                    {/* =================================================
+                        CONTENT
+                        ================================================= */}
 
-                    {/* CONTENT */}
                     <div className="landing-album">
 
                       <div className="landing-album-art">
@@ -255,11 +326,14 @@ function Home() {
 
                     </div>
 
+                    {/* =================================================
+                        FOOTER
+                        ================================================= */}
 
-                    {/* FOOTER */}
                     <div className="daily-card-footer">
 
                       <span className="daily-card-result">
+
                         {!completed
                           ? "New puzzle every day"
                           : solved
@@ -268,23 +342,28 @@ function Home() {
                               : "tries"
                             }`
                             : "Better luck next time"}
+
                       </span>
 
                       <button
                         className="daily-card-button"
                         onClick={() => {
+
                           if (!completed) {
                             navigate(
                               `/games/${game.slug}/daily`
                             );
                           }
+
                         }}
                       >
+
                         {!completed
                           ? "Play"
                           : solved
                             ? "Solved ✓"
                             : "Played"}
+
                       </button>
 
                     </div>
@@ -297,29 +376,52 @@ function Home() {
 
           </div>
 
+          {/* =================================================
+              RECENT PUZZLES
+              ================================================= */}
 
           <div className="history-section">
-            <p className="eyebrow">RECENT PUZZLES</p>
+
+            <p className="eyebrow">
+              RECENT PUZZLES
+            </p>
 
             {history.length === 0 ? (
+
               <div className="history-empty">
-                <p>No completed puzzles yet.</p>
+
+                <p>
+                  No completed puzzles yet.
+                </p>
+
                 <span>
-                  Complete today's puzzle to start your history.
+                  Complete today's puzzle to start
+                  your history.
                 </span>
+
               </div>
+
             ) : (
+
               <div className="history-list">
+
                 {history.map((item) => (
+
                   <div
                     className="history-card"
                     key={item.puzzle_id}
                   >
+
                     <div className="history-info">
-                      <strong>{item.game}</strong>
+
+                      <strong>
+                        {item.game}
+                      </strong>
 
                       <span>
-                        {new Date(item.date).toLocaleDateString(
+                        {new Date(
+                          item.date
+                        ).toLocaleDateString(
                           undefined,
                           {
                             day: "numeric",
@@ -328,9 +430,11 @@ function Home() {
                           }
                         )}
                       </span>
+
                     </div>
 
                     <div className="history-result">
+
                       <strong>
                         {item.attempts}{" "}
                         {item.attempts === 1
@@ -339,17 +443,27 @@ function Home() {
                       </strong>
 
                       <span>
-                        {item.solved ? "Solved" : "Failed"}
+                        {item.solved
+                          ? "Solved"
+                          : "Failed"}
                       </span>
+
                     </div>
+
                   </div>
+
                 ))}
+
               </div>
+
             )}
+
           </div>
 
         </section>
+
       </main>
+
     </div>
   );
 }

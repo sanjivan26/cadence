@@ -1,13 +1,39 @@
-import { useEffect, useState, type FormEvent } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+  useEffect,
+  useState,
+  type FormEvent,
+} from "react";
+
+import {
+  useNavigate,
+  useParams,
+} from "react-router-dom";
+
 import axios from "axios";
 
 import Sidebar from "../components/Sidebar";
 import LoadingScreen from "../components/LoadingScreen";
-import { getCurrentUser, type User } from "../api/auth";
-import { getGames, type Game } from "../api/games";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import {
+  getCurrentUser,
+  type User,
+} from "../api/auth";
+
+import {
+  getGames,
+  getProgress,
+  type Game,
+  type UserProgress,
+} from "../api/games";
+
+
+const API_URL =
+  import.meta.env.VITE_API_URL;
+
+
+// ============================================================
+// TYPES
+// ============================================================
 
 interface Clues {
   year?: number;
@@ -40,7 +66,6 @@ interface DailyPuzzle {
 
 interface AttemptResponse {
   correct: boolean;
-  score: number;
   message: string;
   attempts: number;
   image_url: string;
@@ -48,12 +73,25 @@ interface AttemptResponse {
   completed: boolean;
 }
 
-function Puzzle() {
-  const navigate = useNavigate();
 
-  const { gameSlug } = useParams<{
-    gameSlug: string;
-  }>();
+// ============================================================
+// COMPONENT
+// ============================================================
+
+function Puzzle() {
+
+  const navigate =
+    useNavigate();
+
+  const { gameSlug } =
+    useParams<{
+      gameSlug: string;
+    }>();
+
+
+  // ----------------------------------------------------------
+  // STATE
+  // ----------------------------------------------------------
 
   const [puzzle, setPuzzle] =
     useState<DailyPuzzle | null>(null);
@@ -63,6 +101,9 @@ function Puzzle() {
 
   const [games, setGames] =
     useState<Game[]>([]);
+
+  const [progress, setProgress] =
+    useState<UserProgress | null>(null);
 
   const [answer, setAnswer] =
     useState("");
@@ -82,32 +123,45 @@ function Puzzle() {
   const [menuOpen, setMenuOpen] =
     useState(false);
 
-  // ---------------------------------------------------------
-  // LOAD PUZZLE + USER + GAMES
-  // ---------------------------------------------------------
+
+  // ----------------------------------------------------------
+  // LOAD PUZZLE + USER + GAMES + PROGRESS
+  // ----------------------------------------------------------
 
   useEffect(() => {
+
     async function loadPage() {
+
       if (!gameSlug) {
+
         setError("Invalid game.");
+
         setLoading(false);
+
         return;
       }
 
       try {
+
         const token =
-          localStorage.getItem("access_token");
+          localStorage.getItem(
+            "access_token"
+          );
+
 
         const [
           puzzleResponse,
           userData,
           gamesData,
+          progressData,
         ] = await Promise.all([
+
           axios.get<DailyPuzzle>(
             `${API_URL}/games/${gameSlug}/daily`,
             {
               headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization:
+                  `Bearer ${token}`,
               },
             }
           ),
@@ -115,33 +169,57 @@ function Puzzle() {
           getCurrentUser(),
 
           getGames(),
+
+          getProgress(),
+
         ]);
 
-        setPuzzle(puzzleResponse.data);
-        setUser(userData);
-        setGames(gamesData);
+
+        setPuzzle(
+          puzzleResponse.data
+        );
+
+        setUser(
+          userData
+        );
+
+        setGames(
+          gamesData
+        );
+
+        setProgress(
+          progressData
+        );
 
       } catch (err: any) {
+
         setError(
           err.response?.data?.detail ||
           "Unable to load today's puzzle."
         );
+
       } finally {
+
         setLoading(false);
+
       }
     }
 
     loadPage();
+
   }, [gameSlug]);
 
-  // ---------------------------------------------------------
+
+  // ----------------------------------------------------------
   // SUBMIT ANSWER
-  // ---------------------------------------------------------
+  // ----------------------------------------------------------
 
   async function handleSubmit(
     event: FormEvent
   ) {
+
     event.preventDefault();
+
 
     if (
       !answer.trim() ||
@@ -151,80 +229,149 @@ function Puzzle() {
       return;
     }
 
+
     setSubmitting(true);
+
     setError("");
 
+
     try {
+
       const token =
-        localStorage.getItem("access_token");
+        localStorage.getItem(
+          "access_token"
+        );
+
 
       const response =
         await axios.post<AttemptResponse>(
           `${API_URL}/games/${gameSlug}/today/attempt`,
+
           {
-            answer: answer.trim(),
+            answer:
+              answer.trim(),
           },
+
           {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization:
+                `Bearer ${token}`,
             },
           }
         );
 
-      const data = response.data;
+
+      const data =
+        response.data;
+
 
       setResult(data);
 
+
+      // ------------------------------------------------------
+      // UPDATE PUZZLE STATE
+      // ------------------------------------------------------
+
       setPuzzle((current) => {
+
         if (!current) {
           return current;
         }
+
 
         const clues: Clues = {
           ...(data.clues || {}),
         };
 
+
         return {
+
           ...current,
 
-          attempts: data.attempts,
+          attempts:
+            data.attempts,
 
-          completed: data.completed,
+          completed:
+            data.completed,
 
-          solved: data.correct,
+          solved:
+            data.correct,
 
           puzzle: {
+
             ...current.puzzle,
 
             data: {
+
               ...current.puzzle.data,
 
-              image_url: data.image_url,
+              image_url:
+                data.image_url,
 
               clues,
+
             },
+
           },
+
         };
+
       });
+
+
+      // ------------------------------------------------------
+      // REFRESH STREAK
+      // ------------------------------------------------------
+
+      if (data.completed) {
+
+        try {
+
+          const updatedProgress =
+            await getProgress();
+
+          setProgress(
+            updatedProgress
+          );
+
+        } catch {
+          // Don't break the puzzle
+          // if progress refresh fails.
+        }
+
+      }
+
 
       setAnswer("");
 
     } catch (err: any) {
+
       setError(
         err.response?.data?.detail ||
         "Unable to submit your answer."
       );
+
     } finally {
+
       setSubmitting(false);
+
     }
+
   }
 
-  // ---------------------------------------------------------
+
+  // ----------------------------------------------------------
   // NAVBAR
-  // ---------------------------------------------------------
+  // ----------------------------------------------------------
 
   function Navbar() {
+
+    const currentStreak =
+      progress?.current_streak ?? 0;
+
+
     return (
+
       <header className="navbar">
 
         <div className="navbar-left">
@@ -236,16 +383,20 @@ function Puzzle() {
               setMenuOpen(true)
             }
           >
+
             <span></span>
             <span></span>
             <span></span>
+
           </button>
+
 
           <div className="logo">
             cadence
           </div>
 
         </div>
+
 
         <div className="navbar-right">
 
@@ -256,12 +407,14 @@ function Puzzle() {
             </span>
 
             <span>
-              7 day streak
+              {currentStreak} day streak
             </span>
 
           </div>
 
+
           <div className="navbar-divider"></div>
+
 
           <button
             className="profile-button"
@@ -272,15 +425,21 @@ function Puzzle() {
           >
 
             <div className="profile-avatar">
+
               {user
                 ? user.username
                   .charAt(0)
                   .toUpperCase()
                 : "C"}
+
             </div>
 
+
             <span className="profile-name">
-              {user?.username ?? "Profile"}
+
+              {user?.username ??
+                "Profile"}
+
             </span>
 
           </button>
@@ -288,32 +447,44 @@ function Puzzle() {
         </div>
 
       </header>
+
     );
+
   }
 
-  // ---------------------------------------------------------
+
+  // ----------------------------------------------------------
   // LOADING
-  // ---------------------------------------------------------
+  // ----------------------------------------------------------
 
   if (loading) {
+
     return (
+
       <LoadingScreen
         message="Loading today's puzzle..."
       />
+
     );
+
   }
 
-  // ---------------------------------------------------------
+
+  // ----------------------------------------------------------
   // ERROR
-  // ---------------------------------------------------------
+  // ----------------------------------------------------------
 
   if (error && !puzzle) {
+
     return (
+
       <div className="app">
 
         <Navbar />
 
+
         {menuOpen && user && (
+
           <Sidebar
             games={games}
             user={user}
@@ -321,7 +492,9 @@ function Puzzle() {
               setMenuOpen(false)
             }
           />
+
         )}
+
 
         <main className="puzzle-page-state">
 
@@ -329,6 +502,7 @@ function Puzzle() {
             {error}
           </p>
 
+
           <button
             className="play-button"
             onClick={() =>
@@ -341,20 +515,27 @@ function Puzzle() {
         </main>
 
       </div>
+
     );
+
   }
 
-  // ---------------------------------------------------------
+
+  // ----------------------------------------------------------
   // NO PUZZLE
-  // ---------------------------------------------------------
+  // ----------------------------------------------------------
 
   if (!puzzle) {
+
     return (
+
       <div className="app">
 
         <Navbar />
 
+
         {menuOpen && user && (
+
           <Sidebar
             games={games}
             user={user}
@@ -362,13 +543,16 @@ function Puzzle() {
               setMenuOpen(false)
             }
           />
+
         )}
+
 
         <main className="puzzle-page-state">
 
           <p>
             No puzzle available.
           </p>
+
 
           <button
             className="play-button"
@@ -382,51 +566,48 @@ function Puzzle() {
         </main>
 
       </div>
+
     );
+
   }
 
-  // ---------------------------------------------------------
-  // PUZZLE STATE
-  // ---------------------------------------------------------
 
-  /*
-   * `result` exists immediately after submitting.
-   *
-   * If the page is loaded fresh and the puzzle was already
-   * completed, `result` is null, so we fall back to the
-   * values returned by the backend in `puzzle`.
-   */
+  // ----------------------------------------------------------
+  // PUZZLE STATE
+  // ----------------------------------------------------------
 
   const isCompleted =
     result?.completed ??
     puzzle.completed;
 
+
   const isSolved =
     result?.correct ??
     puzzle.solved;
+
 
   const attempts =
     result?.attempts ??
     puzzle.attempts;
 
-  const score =
-    result?.score ??
-    0;
 
-  // ---------------------------------------------------------
+  // ----------------------------------------------------------
   // MAIN PAGE
-  // ---------------------------------------------------------
+  // ----------------------------------------------------------
 
   return (
+
     <div className="app">
 
       <Navbar />
 
-      {/* =====================================================
+
+      {/* ====================================================
           SIDEBAR
-          ===================================================== */}
+          ==================================================== */}
 
       {menuOpen && user && (
+
         <Sidebar
           games={games}
           user={user}
@@ -434,17 +615,20 @@ function Puzzle() {
             setMenuOpen(false)
           }
         />
+
       )}
 
-      {/* =====================================================
+
+      {/* ====================================================
           PUZZLE CONTENT
-          ===================================================== */}
+          ==================================================== */}
 
       <main className="puzzle-content">
 
-        {/* ===================================================
+
+        {/* ==================================================
             HEADER
-            =================================================== */}
+            ================================================== */}
 
         <section className="puzzle-header">
 
@@ -452,29 +636,39 @@ function Puzzle() {
             TODAY'S PUZZLE
           </p>
 
+
           <h1>
             {puzzle.game.name}
           </h1>
 
+
           {puzzle.game.description && (
+
             <p className="puzzle-subtitle">
+
               {puzzle.game.description}
+
             </p>
+
           )}
+
 
           <div className="attempt-status">
 
             {attempts === 0
+
               ? "Make your first guess"
+
               : `${attempts} of 5 attempts used`}
 
           </div>
 
         </section>
 
-        {/* ===================================================
+
+        {/* ==================================================
             ALBUM
-            =================================================== */}
+            ================================================== */}
 
         <section className="puzzle-card">
 
@@ -484,11 +678,13 @@ function Puzzle() {
               Guess the album
             </span>
 
+
             <span className="puzzle-live">
               DAILY
             </span>
 
           </div>
+
 
           <div className="album-card">
 
@@ -496,7 +692,10 @@ function Puzzle() {
 
               <img
                 src={
-                  puzzle.puzzle.data.image_url
+                  puzzle
+                    .puzzle
+                    .data
+                    .image_url
                 }
                 alt="Mystery album"
                 className="album-image"
@@ -510,11 +709,13 @@ function Puzzle() {
 
             )}
 
+
             <div className="album-info">
 
               <p className="game-name">
                 Guess the album
               </p>
+
 
               <p className="game-description">
                 Use the clues and enter
@@ -527,11 +728,13 @@ function Puzzle() {
 
         </section>
 
-        {/* ===================================================
+
+        {/* ==================================================
             CLUES
-            =================================================== */}
+            ================================================== */}
 
         {puzzle.puzzle.data.clues &&
+
           Object.keys(
             puzzle.puzzle.data.clues
           ).length > 0 && (
@@ -546,10 +749,14 @@ function Puzzle() {
 
               </div>
 
+
               <div className="clue-list">
 
-                {puzzle.puzzle.data.clues.year !==
-                  undefined && (
+                {puzzle
+                  .puzzle
+                  .data
+                  .clues
+                  .year !== undefined && (
 
                     <div className="clue">
 
@@ -557,35 +764,52 @@ function Puzzle() {
                         YEAR
                       </span>
 
+
                       <span className="clue-value">
+
                         {
-                          puzzle.puzzle.data
-                            .clues.year
+                          puzzle
+                            .puzzle
+                            .data
+                            .clues
+                            .year
                         }
+
                       </span>
 
                     </div>
 
                   )}
 
-                {puzzle.puzzle.data.clues.artist && (
 
-                  <div className="clue">
+                {puzzle
+                  .puzzle
+                  .data
+                  .clues
+                  .artist && (
 
-                    <span className="clue-label">
-                      ARTIST
-                    </span>
+                    <div className="clue">
 
-                    <span className="clue-value">
-                      {
-                        puzzle.puzzle.data
-                          .clues.artist
-                      }
-                    </span>
+                      <span className="clue-label">
+                        ARTIST
+                      </span>
 
-                  </div>
 
-                )}
+                      <span className="clue-value">
+
+                        {
+                          puzzle
+                            .puzzle
+                            .data
+                            .clues
+                            .artist
+                        }
+
+                      </span>
+
+                    </div>
+
+                  )}
 
               </div>
 
@@ -593,9 +817,10 @@ function Puzzle() {
 
           )}
 
-        {/* ===================================================
+
+        {/* ==================================================
             ANSWER / RESULT
-            =================================================== */}
+            ================================================== */}
 
         {!isCompleted ? (
 
@@ -612,6 +837,7 @@ function Puzzle() {
                 Your answer
               </label>
 
+
               <input
                 id="answer"
                 className="answer-input"
@@ -627,6 +853,7 @@ function Puzzle() {
                 disabled={submitting}
                 autoComplete="off"
               />
+
 
               <button
                 className="play-button"
@@ -648,9 +875,9 @@ function Puzzle() {
 
           <section className="result-card">
 
-            {/* =================================================
+            {/* ==============================================
                 RESULT LABEL
-                ================================================= */}
+                ============================================== */}
 
             <p className="result-eyebrow">
 
@@ -660,9 +887,10 @@ function Puzzle() {
 
             </p>
 
-            {/* =================================================
+
+            {/* ==============================================
                 RESULT TITLE
-                ================================================= */}
+                ============================================== */}
 
             <h2 className="result-title">
 
@@ -672,49 +900,57 @@ function Puzzle() {
 
             </h2>
 
-            {/* =================================================
+
+            {/* ==============================================
                 RESULT MESSAGE
-                ================================================= */}
+                ============================================== */}
 
             <p className="result-message">
 
               {result?.message ??
+
                 (isSolved
                   ? "You solved today's puzzle!"
                   : "Better luck next time!")}
 
             </p>
 
-            {/* =================================================
-                SCORE
-                ================================================= */}
 
-            <div className="result-score">
+            {/* ==============================================
+                ATTEMPTS
+                ============================================== */}
 
-              <span className="result-score-label">
-                SCORE
+            <div className="result-attempts">
+
+              <span className="result-attempts-label">
+                ATTEMPTS
               </span>
 
-              <span className="result-score-value">
-                {score}
+
+              <span className="result-attempts-value">
+                {attempts}
               </span>
 
             </div>
 
-            {/* =================================================
-                ATTEMPTS
-                ================================================= */}
+
+            {/* ==============================================
+                SUMMARY
+                ============================================== */}
 
             <p className="result-summary">
 
               {isSolved
-                ? `Solved in ${attempts} ${attempts === 1
+
+                ? `You solved today's puzzle in ${attempts} ${attempts === 1
                   ? "attempt"
                   : "attempts"
                 }.`
+
                 : "You used all 5 attempts."}
 
             </p>
+
 
             <button
               className="play-button"
@@ -729,9 +965,10 @@ function Puzzle() {
 
         )}
 
-        {/* ===================================================
+
+        {/* ==================================================
             ERROR
-            =================================================== */}
+            ================================================== */}
 
         {error && puzzle && (
 
@@ -744,7 +981,10 @@ function Puzzle() {
       </main>
 
     </div>
+
   );
+
 }
+
 
 export default Puzzle;

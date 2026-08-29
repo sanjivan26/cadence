@@ -1,10 +1,12 @@
 import axios from "axios";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export interface GameProgress {
     slug: string;
     completed: boolean;
     solved: boolean;
-    attempts: number
+    attempts: number;
 }
 
 export interface Progress {
@@ -13,8 +15,6 @@ export interface Progress {
     completed: number;
     games: GameProgress[];
 }
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 export async function getProgress(): Promise<Progress> {
     const token = localStorage.getItem("access_token");
