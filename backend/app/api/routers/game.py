@@ -91,7 +91,7 @@ def get_today_puzzle(
 
     attempts = attempt.attempts if attempt else 0
     completed = attempt.completed if attempt else False
-
+    solved = attempt.solved if attempt else False
     puzzle_data = puzzle.puzzle_data.copy()
     
 
@@ -169,6 +169,8 @@ def get_today_puzzle(
         },
         "attempts": attempts,
         "completed": completed,
+        "solved": solved,
+
     }
 
 
@@ -329,6 +331,7 @@ def submit_attempt(
             image_url=image_url,
             clues=clues,
             completed=True,
+            solved=True
         )
 
     # ---------------------------------------------------------
@@ -350,6 +353,7 @@ def submit_attempt(
             image_url=image_url,
             clues=clues,
             completed=True,
+            solved=False,
         )
 
     # ---------------------------------------------------------
@@ -366,6 +370,7 @@ def submit_attempt(
         image_url=image_url,
         clues=clues,
         completed=False,
+        solved=False,
     )
 
 

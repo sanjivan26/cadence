@@ -26,13 +26,16 @@ interface DailyPuzzle {
     name: string;
     description: string | null;
   };
+
   puzzle: {
     id: number;
     date: string;
     data: PuzzleData;
   };
+
   attempts: number;
   completed: boolean;
+  solved: boolean;
 }
 
 interface AttemptResponse {
@@ -183,13 +186,21 @@ function Puzzle() {
 
         return {
           ...current,
+
           attempts: data.attempts,
+
           completed: data.completed,
+
+          solved: data.correct,
+
           puzzle: {
             ...current.puzzle,
+
             data: {
               ...current.puzzle.data,
+
               image_url: data.image_url,
+
               clues,
             },
           },
@@ -286,7 +297,9 @@ function Puzzle() {
 
   if (loading) {
     return (
-      <LoadingScreen message="Loading today's puzzle..." />
+      <LoadingScreen
+        message="Loading today's puzzle..."
+      />
     );
   }
 
@@ -372,9 +385,33 @@ function Puzzle() {
     );
   }
 
+  // ---------------------------------------------------------
+  // PUZZLE STATE
+  // ---------------------------------------------------------
+
+  /*
+   * `result` exists immediately after submitting.
+   *
+   * If the page is loaded fresh and the puzzle was already
+   * completed, `result` is null, so we fall back to the
+   * values returned by the backend in `puzzle`.
+   */
+
   const isCompleted =
     result?.completed ??
     puzzle.completed;
+
+  const isSolved =
+    result?.correct ??
+    puzzle.solved;
+
+  const attempts =
+    result?.attempts ??
+    puzzle.attempts;
+
+  const score =
+    result?.score ??
+    0;
 
   // ---------------------------------------------------------
   // MAIN PAGE
@@ -427,9 +464,9 @@ function Puzzle() {
 
           <div className="attempt-status">
 
-            {puzzle.attempts === 0
+            {attempts === 0
               ? "Make your first guess"
-              : `${puzzle.attempts} of 5 attempts used`}
+              : `${attempts} of 5 attempts used`}
 
           </div>
 
@@ -557,7 +594,7 @@ function Puzzle() {
           )}
 
         {/* ===================================================
-            ANSWER
+            ANSWER / RESULT
             =================================================== */}
 
         {!isCompleted ? (
@@ -609,31 +646,48 @@ function Puzzle() {
 
         ) : (
 
-          /* =================================================
-             RESULT
-             ================================================= */
-
           <section className="result-card">
+
+            {/* =================================================
+                RESULT LABEL
+                ================================================= */}
 
             <p className="result-eyebrow">
 
-              {result?.correct
+              {isSolved
                 ? "PUZZLE COMPLETE"
                 : "PUZZLE OVER"}
 
             </p>
 
+            {/* =================================================
+                RESULT TITLE
+                ================================================= */}
+
             <h2 className="result-title">
 
-              {result?.correct
+              {isSolved
                 ? "Correct! 🎉"
                 : "Game Over"}
 
             </h2>
 
+            {/* =================================================
+                RESULT MESSAGE
+                ================================================= */}
+
             <p className="result-message">
-              {result?.message}
+
+              {result?.message ??
+                (isSolved
+                  ? "You solved today's puzzle!"
+                  : "Better luck next time!")}
+
             </p>
+
+            {/* =================================================
+                SCORE
+                ================================================= */}
 
             <div className="result-score">
 
@@ -642,15 +696,19 @@ function Puzzle() {
               </span>
 
               <span className="result-score-value">
-                {result?.score ?? 0}
+                {score}
               </span>
 
             </div>
 
+            {/* =================================================
+                ATTEMPTS
+                ================================================= */}
+
             <p className="result-summary">
 
-              {result?.correct
-                ? `Solved in ${result.attempts} ${result.attempts === 1
+              {isSolved
+                ? `Solved in ${attempts} ${attempts === 1
                   ? "attempt"
                   : "attempts"
                 }.`

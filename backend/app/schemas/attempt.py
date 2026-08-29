@@ -17,3 +17,4 @@ class AttemptResponse(BaseModel):
     image_url: str 
     clues: dict[str, object] 
     completed: bool
+    solved: bool

@@ -59,7 +59,7 @@ function Sidebar({
                     <button
                         onClick={() => {
                             onClose();
-                            navigate("/");
+                            navigate("/home");
                         }}
                     >
                         <HomeIcon />
