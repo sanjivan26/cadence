@@ -11,7 +11,6 @@ from app.models.user import User
 from app.api.dependencies import get_current_user
 from app.models.attempt import PuzzleAttempt
 from app.schemas.attempt import AttemptRequest, AttemptResponse
-from app.schemas.puzzle import PuzzleCreate
 from app.services.pixalbum import generate_pixalbum_images
 
 router = APIRouter(
