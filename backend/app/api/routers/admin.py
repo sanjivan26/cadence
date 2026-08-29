@@ -19,7 +19,6 @@ from app.models.game import Game
 from app.models.puzzle import Puzzle
 from app.models.user import User
 from app.api.dependencies import get_current_user
-from app.schemas.puzzle import PuzzleCreate, DailyPuzzleResponse
 from app.services.pixalbum import generate_pixalbum_images
 from app.services.storage import upload_image
 
