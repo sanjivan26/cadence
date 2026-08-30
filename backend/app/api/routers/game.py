@@ -519,10 +519,6 @@ def submit_attempt(
 
         attempt.completed = True
 
-        # This is still a completed puzzle, but NOT
-        # a solved puzzle, so it will not count toward
-        # the user's streak.
-
         attempt.completed_at = (
             __import__("datetime")
             .datetime.utcnow()
@@ -587,18 +583,6 @@ def get_progress(
             PuzzleAttempt.completed_at.desc()
         )
     ).all()
-
-    # -----------------------------------------------------
-    # STREAK
-    # -----------------------------------------------------
-    #
-    # IMPORTANT:
-    # Do NOT calculate the streak from completed_at here.
-    #
-    # calculate_streak() uses Puzzle.puzzle_date, which is
-    # the actual date of the daily puzzle and avoids UTC/
-    # local-time problems.
-    #
 
     streak_data = calculate_streak(
         db,
@@ -726,6 +710,7 @@ def get_history(
 
         history.append({
             "puzzle_id": puzzle.id,
+            "puzzle_number": puzzle.puzzle_number,
             "game": (
                 game.name
                 if game

@@ -6,6 +6,7 @@ export interface HistoryItem {
     date: string;
     attempts: number;
     solved: boolean;
+    puzzle_number: number | null;
 }
 
 const API_URL = import.meta.env.VITE_API_URL;

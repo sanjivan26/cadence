@@ -39,24 +39,24 @@ class PuzzleAttempt(Base):
         default=1,
         nullable=False,
     )
-    
+
     completed: Mapped[bool] = mapped_column(
+        default=False,
+        nullable=False,
+    )
+
+    solved: Mapped[bool] = mapped_column(
         default=False,
         nullable=False,
     )
 
     score: Mapped[int] = mapped_column(
         Integer,
+        default=0,
         nullable=False,
     )
 
-    completed_at: Mapped[datetime] = mapped_column(
+    completed_at: Mapped[datetime | None] = mapped_column(
         DateTime,
-        default=datetime.utcnow,
-        nullable=False,
+        nullable=True,
     )
-    
-    solved: Mapped[bool] = mapped_column(
-    default=False,
-    nullable=False,
-)

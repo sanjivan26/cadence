@@ -295,22 +295,14 @@ function Home() {
 
                     <div className="daily-card-header">
 
-                      <div>
-                        <h2>
-                          {game.name}
-                        </h2>
-
-                        {puzzleNumber !== null && (
-                          <span className="daily-card-number">
-                            PUZZLE #{puzzleNumber}
-                          </span>
-                        )}
-                      </div>
+                      <h2>
+                        {game.name}
+                      </h2>
 
                       <span
                         className={`daily-card-status ${completed
-                            ? "status-done"
-                            : "status-live"
+                          ? "status-done"
+                          : "status-live"
                           }`}
                       >
                         {completed
@@ -338,6 +330,7 @@ function Home() {
 
                         <h3>
                           {game.name}
+                          {puzzleNumber !== null && ` #${puzzleNumber}`}
                         </h3>
 
                         <p>
@@ -423,6 +416,8 @@ function Home() {
 
                       <strong>
                         {item.game}
+                        {item.puzzle_number !== null &&
+                          ` #${item.puzzle_number}`}
                       </strong>
 
                       <span>
