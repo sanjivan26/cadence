@@ -775,6 +775,14 @@ def get_archive(
                     PuzzleAttempt.puzzle_id == puzzle.id,
                 )
             )
+            
+            image_url = None
+
+            if attempt and attempt.completed:
+                image_url = puzzle.puzzle_data.get(
+                    "images",
+                    {}
+                ).get("original")
 
             game_puzzles.append({
                 "puzzle_id": puzzle.id,
@@ -800,6 +808,7 @@ def get_archive(
                     if attempt
                     else 0
                 ),
+                "image_url": image_url,
             })
 
         archive.append({

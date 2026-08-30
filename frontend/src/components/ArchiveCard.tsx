@@ -37,9 +37,14 @@ function ArchiveCard({
             }}
         >
             <div className="archive-card-art">
-                <span>
-                    {gameName.charAt(0)}
-                </span>
+                {puzzle.image_url ? (
+                    <img
+                        src={puzzle.image_url}
+                        alt={`${gameName} #${puzzle.puzzle_number}`}
+                    />
+                ) : (
+                    <span>{gameName.charAt(0)}</span>
+                )}
             </div>
 
             <div className="archive-card-info">
