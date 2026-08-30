@@ -828,50 +828,56 @@ function Puzzle() {
 
             <form
               onSubmit={handleSubmit}
+              className="answer-form"
             >
 
-              <label
-                htmlFor="answer"
-                className="answer-label"
-              >
-                Your answer
-              </label>
+              <div className="answer-input-wrapper">
 
+                <input
+                  id="answer"
+                  className="answer-input"
+                  type="text"
+                  value={answer}
+                  onChange={(event) =>
+                    setAnswer(event.target.value)
+                  }
+                  placeholder="What's the album?"
+                  required
+                  disabled={submitting}
+                  autoComplete="off"
+                />
 
-              <input
-                id="answer"
-                className="answer-input"
-                type="text"
-                value={answer}
-                onChange={(event) =>
-                  setAnswer(
-                    event.target.value
-                  )
-                }
-                placeholder="Enter album name..."
-                required
-                disabled={submitting}
-                autoComplete="off"
-              />
+                {answer && (
+                  <button
+                    type="button"
+                    className="clear-answer"
+                    onClick={() => setAnswer("")}
+                    aria-label="Clear answer"
+                  >
+                    ×
+                  </button>
+                )}
 
+              </div>
 
               <button
-                className="play-button"
+                className="answer-submit"
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || !answer.trim()}
               >
-
-                {submitting
-                  ? "Checking..."
-                  : "Submit Answer"}
-
+                {submitting ? "Checking..." : "Guess"}
               </button>
 
             </form>
 
+            <span className="answer-attempts">
+              {attempts} / 5 attempts
+            </span>
+
           </section>
 
         ) : (
+
 
           <section className="result-card">
 

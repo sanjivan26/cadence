@@ -245,15 +245,6 @@ function Home() {
 
               {games.map((game) => {
 
-                /*
-                 * IMPORTANT:
-                 *
-                 * Today's game state comes from progress.games.
-                 *
-                 * Do NOT use history here because history can
-                 * contain older puzzles for the same game.
-                 */
-
                 const gameProgress =
                   progress.games.find(
                     (item) =>
@@ -271,8 +262,28 @@ function Home() {
 
                 return (
                   <div
-                    className="daily-card"
+                    className={`daily-card ${completed
+                        ? "daily-card-completed"
+                        : "daily-card-playable"
+                      }`}
                     key={game.slug}
+                    onClick={() =>
+                      navigate(
+                        `/games/${game.slug}/daily`
+                      )
+                    }
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(event) => {
+                      if (
+                        event.key === "Enter" ||
+                        event.key === " "
+                      ) {
+                        navigate(
+                          `/games/${game.slug}/daily`
+                        );
+                      }
+                    }}
                   >
 
                     {/* =================================================
@@ -328,45 +339,30 @@ function Home() {
 
                     {/* =================================================
                         FOOTER
+                        ONLY SHOWN AFTER COMPLETION
                         ================================================= */}
 
-                    <div className="daily-card-footer">
+                    {completed && (
+                      <div
+                        className="daily-card-footer"
+                        onClick={(event) =>
+                          event.stopPropagation()
+                        }
+                      >
 
-                      <span className="daily-card-result">
+                        <span className="daily-card-result">
 
-                        {!completed
-                          ? "New puzzle every day"
-                          : solved
+                          {solved
                             ? `Solved in ${attempts} ${attempts === 1
                               ? "try"
                               : "tries"
                             }`
                             : "Better luck next time"}
 
-                      </span>
+                        </span>
 
-                      <button
-                        className="daily-card-button"
-                        onClick={() => {
-
-                          if (!completed) {
-                            navigate(
-                              `/games/${game.slug}/daily`
-                            );
-                          }
-
-                        }}
-                      >
-
-                        {!completed
-                          ? "Play"
-                          : solved
-                            ? "Solved ✓"
-                            : "Played"}
-
-                      </button>
-
-                    </div>
+                      </div>
+                    )}
 
                   </div>
                 );
