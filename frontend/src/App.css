@@ -2489,262 +2489,6 @@ form {
 
 }
 
-/* =========================================================
-   ARCHIVE PAGE
-   ========================================================= */
-
-.archive-page {
-  margin-top: 48px;
-  width: 100%;
-}
-
-
-/* =========================================================
-   ARCHIVE ROW
-   ========================================================= */
-
-.archive-row {
-  position: relative;
-  margin-bottom: 42px;
-}
-
-.archive-row-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.archive-row-header h2 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-
-/* =========================================================
-   ARCHIVE CAROUSEL
-   ========================================================= */
-
-.archive-carousel-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.archive-carousel {
-  display: flex;
-  gap: 16px;
-
-  overflow-x: auto;
-  scroll-behavior: smooth;
-
-  padding: 4px 2px 12px;
-
-  scrollbar-width: none;
-}
-
-.archive-carousel::-webkit-scrollbar {
-  display: none;
-}
-
-
-/* =========================================================
-   ARCHIVE CARD
-   ========================================================= */
-
-.archive-card {
-  flex: 0 0 190px;
-
-  padding: 12px;
-
-  background: #181818;
-  border-radius: 8px;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
-
-  user-select: none;
-}
-
-.archive-card:hover {
-  background: #242424;
-  transform: translateY(-3px);
-}
-
-
-/* =========================================================
-   ARCHIVE ART
-   ========================================================= */
-
-.archive-card-art {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: #252525;
-
-  border-radius: 6px;
-
-  margin-bottom: 12px;
-
-  overflow: hidden;
-}
-
-.archive-card-art span {
-  font-size: 48px;
-  font-weight: 700;
-
-  opacity: 0.65;
-}
-
-
-/* =========================================================
-   ARCHIVE INFO
-   ========================================================= */
-
-.archive-card-info {
-  display: flex;
-  flex-direction: column;
-
-  gap: 4px;
-
-  min-width: 0;
-}
-
-.archive-card-info strong {
-  font-size: 14px;
-  font-weight: 600;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.archive-card-info span {
-  font-size: 12px;
-  color: #8b8b8b;
-}
-
-
-/* =========================================================
-   ARCHIVE STATUS
-   ========================================================= */
-
-.archive-card-status {
-  margin-top: 10px;
-
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.archive-solved {
-  color: #a7a7a7;
-}
-
-.archive-failed {
-  color: #777;
-}
-
-.archive-unplayed {
-  color: #555;
-}
-
-
-/* =========================================================
-   SCROLL BUTTONS
-   ========================================================= */
-
-.archive-scroll {
-  position: absolute;
-
-  top: 50%;
-  transform: translateY(-50%);
-
-  z-index: 5;
-
-  width: 36px;
-  height: 36px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: none;
-  border-radius: 50%;
-
-  background: #282828;
-  color: #fff;
-
-  font-size: 28px;
-  line-height: 1;
-
-  cursor: pointer;
-
-  opacity: 0;
-
-  transition:
-    opacity 0.2s ease,
-    background 0.2s ease,
-    transform 0.2s ease;
-}
-
-.archive-carousel-wrapper:hover .archive-scroll {
-  opacity: 1;
-}
-
-.archive-scroll:hover {
-  background: #383838;
-}
-
-.archive-scroll-left {
-  left: -18px;
-}
-
-.archive-scroll-right {
-  right: -18px;
-}
-
-
-/* =========================================================
-   VIEW ALL
-   ========================================================= */
-
-.archive-view-all {
-  border: none;
-  background: transparent;
-
-  color: #a7a7a7;
-
-  font-size: 12px;
-  font-weight: 600;
-
-  text-transform: uppercase;
-
-  cursor: pointer;
-
-  transition: color 0.2s ease;
-}
-
-.archive-view-all:hover {
-  color: #fff;
-}
-
-
-/* =========================================================
-   ARCHIVE PAGE HEADER
-   ========================================================= */
-
-.archive-page+* {
-  margin-top: 0;
-}
-
 
 /* =========================================================
    SECTION HEADER
@@ -2782,89 +2526,452 @@ form {
 
 
 /* =========================================================
-   MOBILE
+   NAVBAR LOGO
    ========================================================= */
 
-@media (max-width: 700px) {
+/* Make cadence look like a logo, NOT a button */
 
-  .archive-page {
-    margin-top: 32px;
-  }
-
-  .archive-card {
-    flex-basis: 155px;
-  }
-
-  .archive-scroll {
-    display: none;
-  }
-
-  .archive-carousel {
-    gap: 12px;
-  }
-
-}
-
-/* =========================================================
-   RESULT ACTIONS
-   ========================================================= */
-
-.result-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  margin-top: 24px;
-}
-
-
-/* =========================================================
-   ARCHIVE BUTTON
-   ========================================================= */
-
-.archive-button {
-  width: 100%;
-  max-width: 260px;
-
-  padding: 12px 18px;
-
-  border: 1px solid #2a2a2a;
-  border-radius: 8px;
+.navbar .logo {
+  appearance: none;
+  -webkit-appearance: none;
 
   background: transparent;
+  border: none;
+  padding: 0;
+
+  color: #f4f4f5;
+  font: inherit;
+  font-size: 20px;
+  font-weight: 700;
+
+  cursor: pointer;
+  letter-spacing: -0.5px;
+}
+
+.navbar .logo:hover {
+  background: transparent;
+  color: #ffffff;
+}
+
+/* Remove browser focus box if you don't want it */
+.navbar .logo:focus {
+  outline: none;
+}
+
+/* =========================================================
+   ARCHIVE PAGE
+   ========================================================= */
+
+.archive-content {
+  width: 100%;
+  min-height: calc(100vh - 64px);
+
+  display: flex;
+  justify-content: center;
+
+  padding: 40px 32px 80px;
+}
+
+.archive-content>* {
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* =========================================================
+   MAIN ARCHIVE CONTAINER
+   ========================================================= */
+
+.archive-games {
+  background: #141414;
+  border: 1px solid #242424;
+  border-radius: 14px;
+
+  padding: 36px 40px 44px;
+
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* =========================================================
+   ARCHIVE HEADER
+   ========================================================= */
+
+.archive-header {
+  width: 100%;
+  max-width: 1200px;
+
+  margin: 0 auto 24px;
+}
+
+.archive-header h1 {
+  margin: 0;
+
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.1;
+
+  letter-spacing: -1px;
+}
+
+.archive-header .subtitle {
+  margin: 8px 0 0;
+
+  color: #a1a1aa;
+  font-size: 15px;
+}
+
+/* =========================================================
+   GAME SECTIONS
+   ========================================================= */
+
+.archive-games {
+  display: flex;
+  flex-direction: column;
+  gap: 42px;
+}
+
+.archive-row {
+  width: 100%;
+}
+
+.archive-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 16px;
+}
+
+.archive-row-header h2 {
+  margin: 0;
+
+  font-size: 20px;
+  font-weight: 650;
+
+  color: #f4f4f5;
+}
+
+.archive-view-all {
+  background: transparent;
+  border: none;
+
   color: #a1a1aa;
 
   font-size: 13px;
   font-weight: 600;
 
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease;
+}
+
+.archive-view-all:hover {
+  color: #ffffff;
+}
+
+/* =========================================================
+   ARCHIVE CAROUSEL
+   ========================================================= */
+
+.archive-carousel-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.archive-carousel {
+  display: flex;
+  gap: 14px;
+
+  overflow-x: auto;
+  scroll-behavior: smooth;
+
+  padding: 4px 2px 8px;
+
+  scrollbar-width: none;
+}
+
+.archive-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+/* =========================================================
+   ARCHIVE CARD
+   ========================================================= */
+
+.archive-card {
+  flex: 0 0 180px;
+
+  background: #1b1b1b;
+  border: 1px solid #282828;
+  border-radius: 9px;
+
+  padding: 10px;
 
   cursor: pointer;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
   transition:
     background 0.2s ease,
-    color 0.2s ease,
     border-color 0.2s ease,
     transform 0.2s ease;
 }
 
-.archive-button span {
-  font-size: 16px;
-  transition: transform 0.2s ease;
+.archive-card:hover {
+  background: #222222;
+  border-color: #353535;
+
+  transform: translateY(-2px);
 }
 
-.archive-button:hover {
-  background: #181818;
-  border-color: #3a3a3a;
+/* =========================================================
+   CARD ART
+   ========================================================= */
+
+.archive-card-art {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+
+  border-radius: 6px;
+  overflow: hidden;
+
+  background: #252525;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.archive-card-art img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+}
+
+.archive-card-placeholder {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 32px;
+}
+
+/* =========================================================
+   CARD INFO
+   ========================================================= */
+
+.archive-card-info {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  padding: 10px 3px 4px;
+}
+
+.archive-card-info strong {
+  font-size: 13px;
+  font-weight: 600;
+
   color: #f4f4f5;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.archive-button:hover span {
-  transform: translateX(3px);
+.archive-card-info span {
+  font-size: 12px;
+  color: #71717a;
+}
+
+/* =========================================================
+   CARD STATUS
+   ========================================================= */
+
+.archive-card-status {
+  padding: 5px 3px 2px;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.archive-solved {
+  color: #a1a1aa;
+}
+
+.archive-failed {
+  color: #71717a;
+}
+
+.archive-unplayed {
+  color: #52525b;
+}
+
+/* =========================================================
+   CAROUSEL ARROWS
+   ========================================================= */
+
+.archive-scroll {
+  position: absolute;
+
+  top: 50%;
+  transform: translateY(-50%);
+
+  z-index: 2;
+
+  width: 32px;
+  height: 32px;
+
+  border-radius: 50%;
+  border: 1px solid #333;
+
+  background: #181818;
+  color: #ffffff;
+
+  font-size: 22px;
+  line-height: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  opacity: 0;
+
+  transition:
+    opacity 0.2s ease,
+    background 0.2s ease;
+}
+
+.archive-carousel-wrapper:hover .archive-scroll {
+  opacity: 1;
+}
+
+.archive-scroll:hover {
+  background: #282828;
+}
+
+.archive-scroll-left {
+  left: -16px;
+}
+
+.archive-scroll-right {
+  right: -16px;
+}
+
+/* =========================================================
+   NAVBAR LOGO
+   ========================================================= */
+
+.navbar .logo {
+  appearance: none;
+  -webkit-appearance: none;
+
+  background: transparent;
+  border: none;
+  padding: 0;
+
+  color: #f4f4f5;
+
+  font: inherit;
+  font-size: 20px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  letter-spacing: -0.5px;
+}
+
+.navbar .logo:hover {
+  background: transparent;
+  color: #ffffff;
+}
+
+/* =========================================================
+   EMPTY / ERROR
+   ========================================================= */
+
+.archive-empty,
+.archive-error {
+  text-align: center;
+
+  padding: 60px 30px;
+
+  background: #1b1b1b;
+  border: 1px solid #282828;
+  border-radius: 10px;
+}
+
+.archive-empty h2,
+.archive-error h1 {
+  margin: 0 0 8px;
+}
+
+.archive-empty p,
+.archive-error p {
+  margin: 0;
+  color: #71717a;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  .archive-content {
+    padding: 24px 16px 60px;
+  }
+
+  .archive-games {
+    padding: 28px 22px 34px;
+    border-radius: 12px;
+  }
+
+  .archive-header h1 {
+    font-size: 32px;
+  }
+
+  .archive-card {
+    flex-basis: 160px;
+  }
+
+}
+
+@media (max-width: 480px) {
+
+  .archive-content {
+    padding: 20px 12px 50px;
+  }
+
+  .archive-games {
+    padding: 22px 16px 28px;
+  }
+
+  .archive-header {
+    margin-bottom: 18px;
+  }
+
+  .archive-header h1 {
+    font-size: 28px;
+  }
+
+}
+
+.archive-content {
+  width: 100%;
+  min-height: calc(100vh - 64px);
+  padding: 40px 32px 80px;
+}
+
+.archive-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }

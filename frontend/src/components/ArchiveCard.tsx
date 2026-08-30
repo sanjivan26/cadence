@@ -1,4 +1,5 @@
 import type { ArchivePuzzle } from "../api/archive";
+import { gameIcons } from "./GameIcons";
 
 interface ArchiveCardProps {
     puzzle: ArchivePuzzle;
@@ -43,7 +44,9 @@ function ArchiveCard({
                         alt={`${gameName} #${puzzle.puzzle_number}`}
                     />
                 ) : (
-                    <span>{gameName.charAt(0)}</span>
+                    <div className="archive-card-placeholder">
+                        {gameName === "PixAlbum" && gameIcons["pixalbum"]}
+                    </div>
                 )}
             </div>
 

@@ -759,6 +759,7 @@ def get_archive(
             .where(
                 Puzzle.game_id == game.id,
                 Puzzle.status == "published",
+                Puzzle.puzzle_date <= date.today(),
             )
             .order_by(
                 Puzzle.puzzle_number.desc()

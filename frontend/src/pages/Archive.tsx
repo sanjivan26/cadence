@@ -187,72 +187,83 @@ function Archive() {
             )}
 
 
-            {/* CONTENT */}
+            {/* =========================================================
+    CONTENT
+    ========================================================= */}
 
             <main className="archive-content">
 
-                <section className="archive-header">
+                <div className="archive-container">
 
-                    <p className="eyebrow">
-                        CADENCE
-                    </p>
+                    {/* =================================================
+            ARCHIVE HEADER
+            ================================================= */}
 
-                    <h1>
-                        Archive
-                    </h1>
+                    <section className="archive-header">
 
-                    <p className="subtitle">
-                        Revisit puzzles you've played.
-                    </p>
+                        <p className="eyebrow">
+                            CADENCE
+                        </p>
 
-                </section>
+                        <h1>
+                            Archive
+                        </h1>
+
+                        <p className="subtitle">
+                            Revisit puzzles you've played.
+                        </p>
+
+                    </section>
 
 
-                {/* GAME ARCHIVES */}
+                    {/* =================================================
+            GAME ARCHIVES
+            ================================================= */}
 
-                <section className="archive-games">
+                    <section className="archive-games">
 
-                    {archive.length === 0 ? (
+                        {archive.length === 0 ? (
 
-                        <div className="archive-empty">
+                            <div className="archive-empty">
 
-                            <h2>
-                                No puzzles yet
-                            </h2>
+                                <h2>
+                                    No puzzles yet
+                                </h2>
 
-                            <p>
-                                Complete a daily puzzle and it
-                                will appear here.
-                            </p>
+                                <p>
+                                    Complete a daily puzzle and it
+                                    will appear here.
+                                </p>
 
-                        </div>
+                            </div>
 
-                    ) : (
+                        ) : (
 
-                        archive.map((game) => (
+                            archive.map((game) => (
 
-                            <ArchiveRow
-                                key={game.slug}
-                                game={game}
-                                onViewAll={() => {
-                                    // Full archive can be added later.
-                                }}
-                                onPuzzleClick={(puzzleId) => {
-                                    console.log(
-                                        "Open archived puzzle:",
-                                        puzzleId
-                                    );
-                                }}
-                            />
+                                <ArchiveRow
+                                    key={game.slug}
+                                    game={game}
+                                    onViewAll={() => {
+                                        // Full archive can be added later.
+                                    }}
+                                    onPuzzleClick={(puzzleId) => {
+                                        console.log(
+                                            "Open archived puzzle:",
+                                            puzzleId
+                                        );
+                                    }}
+                                />
 
-                        ))
+                            ))
 
-                    )}
+                        )}
 
-                </section>
+                    </section>
+
+                </div>
 
             </main>
-
         </div>
     );
 }

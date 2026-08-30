@@ -10,7 +10,7 @@ export interface ArchivePuzzle {
     solved: boolean;
     attempts: number;
     score: number;
-    image_url: string;
+    image_url: string | null;
 }
 
 export interface ArchiveGame {
