@@ -38,6 +38,10 @@ def calculate_streak(
     Only successfully solved puzzles count toward a streak.
     A puzzle that was completed after 5 failed attempts does
     NOT count.
+
+    The current streak remains active throughout today if the
+    user solved yesterday. It only becomes 0 after a full
+    missed day.
     """
 
     solved_attempts = db.scalars(
@@ -62,10 +66,20 @@ def calculate_streak(
     # -----------------------------------------------------
     # CURRENT STREAK
     # -----------------------------------------------------
+    #
+    # If today's puzzle is solved, start from today.
+    #
+    # If today's puzzle has not been solved yet, start from
+    # yesterday so the user's active streak is preserved
+    # during the current day.
+    #
 
     current_streak = 0
 
-    check_date = today
+    if today in solved_days:
+        check_date = today
+    else:
+        check_date = today - timedelta(days=1)
 
     while check_date in solved_days:
         current_streak += 1
