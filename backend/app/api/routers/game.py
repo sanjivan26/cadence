@@ -310,6 +310,7 @@ def get_today_puzzle(
 
         "puzzle": {
             "id": puzzle.id,
+            "number": puzzle.puzzle_number,
             "date": puzzle.puzzle_date,
             "data": puzzle_data,
         },
@@ -663,6 +664,11 @@ def get_progress(
             "completed": completed,
             "solved": solved,
             "attempts": attempts_count,
+            "puzzle_number": (
+                today_puzzle.puzzle_number
+                if today_puzzle
+                else None
+            ),
         })
 
     # -----------------------------------------------------

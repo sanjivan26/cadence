@@ -1,6 +1,14 @@
 from datetime import date, datetime
 
-from sqlalchemy import JSON, Date, DateTime, ForeignKey, String, UniqueConstraint
+from sqlalchemy import (
+    JSON,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -15,6 +23,11 @@ class Puzzle(Base):
             "puzzle_date",
             name="uq_game_puzzle_date",
         ),
+        UniqueConstraint(
+            "game_id",
+            "puzzle_number",
+            name="uq_game_puzzle_number",
+        ),
     )
 
     id: Mapped[int] = mapped_column(
@@ -26,6 +39,11 @@ class Puzzle(Base):
         ForeignKey("games.id"),
         nullable=False,
         index=True,
+    )
+
+    puzzle_number: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
     )
 
     puzzle_date: Mapped[date] = mapped_column(

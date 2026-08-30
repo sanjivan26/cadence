@@ -7,6 +7,7 @@ export interface GameProgress {
     completed: boolean;
     solved: boolean;
     attempts: number;
+    puzzle_number: number | null;
 }
 
 export interface Progress {

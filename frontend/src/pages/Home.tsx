@@ -260,11 +260,14 @@ function Home() {
                 const attempts =
                   gameProgress?.attempts ?? 0;
 
+                const puzzleNumber =
+                  gameProgress?.puzzle_number ?? null;
+
                 return (
                   <div
                     className={`daily-card ${completed
-                        ? "daily-card-completed"
-                        : "daily-card-playable"
+                      ? "daily-card-completed"
+                      : "daily-card-playable"
                       }`}
                     key={game.slug}
                     onClick={() =>
@@ -292,9 +295,17 @@ function Home() {
 
                     <div className="daily-card-header">
 
-                      <h2>
-                        {game.name}
-                      </h2>
+                      <div>
+                        <h2>
+                          {game.name}
+                        </h2>
+
+                        {puzzleNumber !== null && (
+                          <span className="daily-card-number">
+                            PUZZLE #{puzzleNumber}
+                          </span>
+                        )}
+                      </div>
 
                       <span
                         className={`daily-card-status ${completed
