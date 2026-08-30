@@ -39,9 +39,8 @@ def calculate_streak(
     A puzzle that was completed after 5 failed attempts does
     NOT count.
 
-    The current streak remains active throughout today if the
-    user solved yesterday. It only becomes 0 after a full
-    missed day.
+    Streak dates are based on the puzzle's puzzle_date rather
+    than completed_at, avoiding timezone-related issues.
     """
 
     solved_attempts = db.scalars(
@@ -56,9 +55,16 @@ def calculate_streak(
     solved_days = set()
 
     for attempt in solved_attempts:
-        if attempt.completed_at:
+
+        puzzle = db.scalar(
+            select(Puzzle).where(
+                Puzzle.id == attempt.puzzle_id
+            )
+        )
+
+        if puzzle:
             solved_days.add(
-                attempt.completed_at.date()
+                puzzle.puzzle_date
             )
 
     today = date.today()
@@ -67,11 +73,13 @@ def calculate_streak(
     # CURRENT STREAK
     # -----------------------------------------------------
     #
-    # If today's puzzle is solved, start from today.
+    # If today's puzzle has been solved, count from today.
     #
-    # If today's puzzle has not been solved yet, start from
-    # yesterday so the user's active streak is preserved
-    # during the current day.
+    # If today's puzzle has NOT been solved yet, count from
+    # yesterday so the current streak remains active during
+    # the current day.
+    #
+    # If yesterday wasn't solved either, the streak is 0.
     #
 
     current_streak = 0
@@ -479,8 +487,7 @@ def submit_attempt(
 
         attempt.completed = True
 
-        # IMPORTANT:
-        # Record exactly when the puzzle was solved.
+        # Keep completed_at for history/auditing.
         attempt.completed_at = (
             __import__("datetime")
             .datetime.utcnow()
@@ -557,6 +564,7 @@ def submit_attempt(
 # =========================================================
 # GET PROGRESS
 # =========================================================
+
 @router.get(
     "/progress",
 )
@@ -564,9 +572,9 @@ def get_progress(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # ---------------------------------------------------------
+    # -----------------------------------------------------
     # ALL COMPLETED PUZZLES
-    # ---------------------------------------------------------
+    # -----------------------------------------------------
 
     attempts = db.scalars(
         select(PuzzleAttempt)
@@ -574,53 +582,41 @@ def get_progress(
             PuzzleAttempt.user_id == current_user.id,
             PuzzleAttempt.completed.is_(True),
         )
-        .order_by(PuzzleAttempt.completed_at.desc())
+        .order_by(
+            PuzzleAttempt.completed_at.desc()
+        )
     ).all()
 
-    # Only use completed attempts that actually have a
-    # completed_at timestamp.
-    completed_days = {
-        attempt.completed_at.date()
-        for attempt in attempts
-        if attempt.completed_at is not None
-    }
+    # -----------------------------------------------------
+    # STREAK
+    # -----------------------------------------------------
+    #
+    # IMPORTANT:
+    # Do NOT calculate the streak from completed_at here.
+    #
+    # calculate_streak() uses Puzzle.puzzle_date, which is
+    # the actual date of the daily puzzle and avoids UTC/
+    # local-time problems.
+    #
+
+    streak_data = calculate_streak(
+        db,
+        current_user.id,
+    )
+
+    current_streak = streak_data[
+        "current_streak"
+    ]
+
+    best_streak = streak_data[
+        "best_streak"
+    ]
 
     today = date.today()
 
-    # ---------------------------------------------------------
-    # CURRENT STREAK
-    # ---------------------------------------------------------
-
-    current_streak = 0
-    check_date = today
-
-    while check_date in completed_days:
-        current_streak += 1
-        check_date -= timedelta(days=1)
-
-    # ---------------------------------------------------------
-    # BEST STREAK
-    # ---------------------------------------------------------
-
-    best_streak = 0
-    streak = 0
-    previous_date = None
-
-    for completed_date in sorted(completed_days):
-        if (
-            previous_date is not None
-            and (completed_date - previous_date).days == 1
-        ):
-            streak += 1
-        else:
-            streak = 1
-
-        best_streak = max(best_streak, streak)
-        previous_date = completed_date
-
-    # ---------------------------------------------------------
+    # -----------------------------------------------------
     # TODAY'S GAME PROGRESS
-    # ---------------------------------------------------------
+    # -----------------------------------------------------
 
     games = db.scalars(
         select(Game)
@@ -669,9 +665,9 @@ def get_progress(
             "attempts": attempts_count,
         })
 
-    # ---------------------------------------------------------
+    # -----------------------------------------------------
     # RESPONSE
-    # ---------------------------------------------------------
+    # -----------------------------------------------------
 
     return {
         "current_streak": current_streak,
