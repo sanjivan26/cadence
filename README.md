@@ -2,7 +2,7 @@
 
 **Cadence** is a daily puzzle platform where users can play a collection of music-inspired games, maintain streaks, and revisit previous puzzles through an archive.
 
-[**Live Demo →**](https://your-vercel-url.vercel.app)
+[**Live Demo →**](https://cadence-game.vercel.app/)
 
 ## Features
 
