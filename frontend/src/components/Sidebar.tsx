@@ -89,6 +89,16 @@ function Sidebar({
                         </button>
                     ))}
 
+                    <button
+                        className="sidebar-nav-item"
+                        onClick={() => {
+                            navigate("/archive");
+                            onClose();
+                        }}
+                    >
+                        Archive
+                    </button>
+
 
                     {/* Admin */}
                     {user.is_admin && (

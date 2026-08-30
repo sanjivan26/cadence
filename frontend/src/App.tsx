@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Puzzle from "./pages/Puzzle";
 import Register from "./pages/Register";
 import AdminPuzzles from "./pages/AdminPuzzles";
+import Archive from "./pages/Archive";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -28,6 +29,10 @@ function App() {
           <Route
             path="/games/:gameSlug/daily"
             element={<Puzzle />}
+          />
+          <Route
+            path="/archive"
+            element={<Archive />}
           />
         </Route>
       </Routes>

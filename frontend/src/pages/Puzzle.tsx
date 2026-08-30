@@ -958,15 +958,24 @@ function Puzzle() {
             </p>
 
 
-            <button
-              className="play-button"
-              onClick={() =>
-                navigate("/home")
-              }
-            >
-              Back to Home
-            </button>
+            <div className="result-actions">
 
+              <button
+                className="play-button"
+                onClick={() => navigate("/home")}
+              >
+                Back to Home
+              </button>
+
+              <button
+                className="archive-button"
+                onClick={() => navigate("/archive")}
+              >
+                View Archive
+                <span>→</span>
+              </button>
+
+            </div>
           </section>
 
         )}

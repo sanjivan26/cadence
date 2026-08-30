@@ -263,166 +263,96 @@ button {
   text-transform: uppercase;
 }
 
-/* =========================================================
-   HOME — RECENT PUZZLES
-   ========================================================= */
-
 .history-section {
-  width: 100%;
-  max-width: 700px;
-  margin: 3rem auto 0;
-}
-
-.history-section>.eyebrow {
-  margin-bottom: 0.75rem;
+  margin-top: 52px;
 }
 
 .history-list {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  border-top: 1px solid #27272a;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .history-card {
-  min-height: 64px;
-  padding: 0 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #242424;
-  background: transparent;
-  transition: background 0.15s ease;
+
+  padding: 16px 18px;
+
+  background: #181818;
+  border-radius: 8px;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+
+  cursor: pointer;
 }
 
 .history-card:hover {
-  background: #181818;
+  background: #222222;
+  transform: translateY(-1px);
 }
 
 .history-info {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 14px;
+  min-width: 0;
 }
 
 .history-info strong {
-  min-width: 130px;
+  font-size: 15px;
+  font-weight: 600;
   color: #f4f4f5;
-  font-size: 14px;
-  font-weight: 500;
 }
 
 .history-info span {
+  font-size: 13px;
   color: #71717a;
-  font-size: 12px;
 }
 
 .history-result {
   display: flex;
   align-items: center;
-  gap: 14px;
-  text-align: right;
+  gap: 16px;
 }
 
 .history-result strong {
-  color: #f4f4f5;
   font-size: 13px;
   font-weight: 500;
+  color: #a1a1aa;
 }
 
 .history-result span {
-  color: #71717a;
   font-size: 12px;
-}
-
-/* Legacy recent-list support */
-
-.recent-list {
-  width: 100%;
-  border-top: 1px solid #27272a;
-}
-
-.recent-item {
-  min-height: 64px;
-  padding: 0 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #242424;
-  transition: background 0.15s ease;
-}
-
-.recent-item:hover {
-  background: #181818;
-}
-
-.recent-info {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.recent-info strong {
-  min-width: 130px;
-  color: #f4f4f5;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.recent-info span {
-  color: #71717a;
-  font-size: 12px;
-}
-
-.recent-result {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.recent-result span {
-  color: #71717a;
-  font-size: 12px;
-}
-
-.recent-result strong {
-  width: 26px;
-  height: 26px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  font-size: 13px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #71717a;
 }
-
-.result-success {
-  color: #4ade80;
-  background: rgba(74, 222, 128, 0.08);
-}
-
-.result-failed {
-  color: #f87171;
-  background: rgba(248, 113, 113, 0.08);
-}
-
-/* Empty history */
 
 .history-empty {
-  padding: 22px 8px;
-  border-top: 1px solid #27272a;
-  border-bottom: 1px solid #27272a;
+  margin-top: 16px;
+  padding: 28px;
+  background: #181818;
+  border-radius: 8px;
+  text-align: center;
 }
 
 .history-empty p {
-  margin: 0 0 5px;
-  color: #f4f4f5;
-  font-size: 14px;
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .history-empty span {
+  font-size: 13px;
   color: #71717a;
-  font-size: 12px;
 }
+
 
 /* =========================================================
    HOME — DAILY GAMES
@@ -2557,4 +2487,384 @@ form {
     width: 100%;
   }
 
+}
+
+/* =========================================================
+   ARCHIVE PAGE
+   ========================================================= */
+
+.archive-page {
+  margin-top: 48px;
+  width: 100%;
+}
+
+
+/* =========================================================
+   ARCHIVE ROW
+   ========================================================= */
+
+.archive-row {
+  position: relative;
+  margin-bottom: 42px;
+}
+
+.archive-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.archive-row-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+
+/* =========================================================
+   ARCHIVE CAROUSEL
+   ========================================================= */
+
+.archive-carousel-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.archive-carousel {
+  display: flex;
+  gap: 16px;
+
+  overflow-x: auto;
+  scroll-behavior: smooth;
+
+  padding: 4px 2px 12px;
+
+  scrollbar-width: none;
+}
+
+.archive-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* =========================================================
+   ARCHIVE CARD
+   ========================================================= */
+
+.archive-card {
+  flex: 0 0 190px;
+
+  padding: 12px;
+
+  background: #181818;
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+
+  user-select: none;
+}
+
+.archive-card:hover {
+  background: #242424;
+  transform: translateY(-3px);
+}
+
+
+/* =========================================================
+   ARCHIVE ART
+   ========================================================= */
+
+.archive-card-art {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #252525;
+
+  border-radius: 6px;
+
+  margin-bottom: 12px;
+
+  overflow: hidden;
+}
+
+.archive-card-art span {
+  font-size: 48px;
+  font-weight: 700;
+
+  opacity: 0.65;
+}
+
+
+/* =========================================================
+   ARCHIVE INFO
+   ========================================================= */
+
+.archive-card-info {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.archive-card-info strong {
+  font-size: 14px;
+  font-weight: 600;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.archive-card-info span {
+  font-size: 12px;
+  color: #8b8b8b;
+}
+
+
+/* =========================================================
+   ARCHIVE STATUS
+   ========================================================= */
+
+.archive-card-status {
+  margin-top: 10px;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.archive-solved {
+  color: #a7a7a7;
+}
+
+.archive-failed {
+  color: #777;
+}
+
+.archive-unplayed {
+  color: #555;
+}
+
+
+/* =========================================================
+   SCROLL BUTTONS
+   ========================================================= */
+
+.archive-scroll {
+  position: absolute;
+
+  top: 50%;
+  transform: translateY(-50%);
+
+  z-index: 5;
+
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #282828;
+  color: #fff;
+
+  font-size: 28px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  opacity: 0;
+
+  transition:
+    opacity 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.archive-carousel-wrapper:hover .archive-scroll {
+  opacity: 1;
+}
+
+.archive-scroll:hover {
+  background: #383838;
+}
+
+.archive-scroll-left {
+  left: -18px;
+}
+
+.archive-scroll-right {
+  right: -18px;
+}
+
+
+/* =========================================================
+   VIEW ALL
+   ========================================================= */
+
+.archive-view-all {
+  border: none;
+  background: transparent;
+
+  color: #a7a7a7;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition: color 0.2s ease;
+}
+
+.archive-view-all:hover {
+  color: #fff;
+}
+
+
+/* =========================================================
+   ARCHIVE PAGE HEADER
+   ========================================================= */
+
+.archive-page+* {
+  margin-top: 0;
+}
+
+
+/* =========================================================
+   SECTION HEADER
+   ========================================================= */
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 16px;
+}
+
+.section-header .eyebrow {
+  margin-bottom: 0;
+}
+
+.section-link {
+  border: none;
+  background: transparent;
+
+  color: #8b8b8b;
+
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: color 0.2s ease;
+}
+
+.section-link:hover {
+  color: #fff;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .archive-page {
+    margin-top: 32px;
+  }
+
+  .archive-card {
+    flex-basis: 155px;
+  }
+
+  .archive-scroll {
+    display: none;
+  }
+
+  .archive-carousel {
+    gap: 12px;
+  }
+
+}
+
+/* =========================================================
+   RESULT ACTIONS
+   ========================================================= */
+
+.result-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+
+/* =========================================================
+   ARCHIVE BUTTON
+   ========================================================= */
+
+.archive-button {
+  width: 100%;
+  max-width: 260px;
+
+  padding: 12px 18px;
+
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+
+  background: transparent;
+  color: #a1a1aa;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.archive-button span {
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+
+.archive-button:hover {
+  background: #181818;
+  border-color: #3a3a3a;
+  color: #f4f4f5;
+}
+
+.archive-button:hover span {
+  transform: translateX(3px);
 }

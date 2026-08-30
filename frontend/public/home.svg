@@ -9,36 +9,36 @@
   <path
     d="M8 20V8H20"
     stroke="white"
-    stroke-width="3"
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
   />
 
   <!-- Top-right -->
   <path
     d="M44 8H56V20"
     stroke="white"
-    stroke-width="3"
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
   />
 
   <!-- Bottom-left -->
   <path
     d="M8 44V56H20"
     stroke="white"
-    stroke-width="3"
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
   />
 
   <!-- Bottom-right -->
   <path
     d="M56 44V56H44"
     stroke="white"
-    stroke-width="3"
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
   />
 
   <!-- Home -->

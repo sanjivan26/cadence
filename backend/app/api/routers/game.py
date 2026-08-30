@@ -722,3 +722,90 @@ def get_history(
         })
 
     return history
+
+# =========================================================
+# ARCHIVE
+# =========================================================
+
+@router.get(
+    "/archive",
+)
+def get_archive(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # -----------------------------------------------------
+    # GET ACTIVE GAMES
+    # -----------------------------------------------------
+
+    games = db.scalars(
+        select(Game)
+        .where(
+            Game.is_active.is_(True)
+        )
+        .order_by(Game.id)
+    ).all()
+
+    archive = []
+
+    # -----------------------------------------------------
+    # BUILD ARCHIVE FOR EACH GAME
+    # -----------------------------------------------------
+
+    for game in games:
+
+        puzzles = db.scalars(
+            select(Puzzle)
+            .where(
+                Puzzle.game_id == game.id,
+                Puzzle.status == "published",
+            )
+            .order_by(
+                Puzzle.puzzle_number.desc()
+            )
+        ).all()
+
+        game_puzzles = []
+
+        for puzzle in puzzles:
+
+            attempt = db.scalar(
+                select(PuzzleAttempt).where(
+                    PuzzleAttempt.user_id == current_user.id,
+                    PuzzleAttempt.puzzle_id == puzzle.id,
+                )
+            )
+
+            game_puzzles.append({
+                "puzzle_id": puzzle.id,
+                "puzzle_number": puzzle.puzzle_number,
+                "date": puzzle.puzzle_date,
+                "completed": (
+                    attempt.completed
+                    if attempt
+                    else False
+                ),
+                "solved": (
+                    attempt.solved
+                    if attempt
+                    else False
+                ),
+                "attempts": (
+                    attempt.attempts
+                    if attempt
+                    else 0
+                ),
+                "score": (
+                    attempt.score
+                    if attempt
+                    else 0
+                ),
+            })
+
+        archive.append({
+            "slug": game.slug,
+            "name": game.name,
+            "puzzles": game_puzzles,
+        })
+
+    return archive

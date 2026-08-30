@@ -9,17 +9,17 @@ const HomeIcon = () => (
         <path
             d="M4 9L10 4L16 9"
             stroke="#A855F7"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
         />
 
         <path
             d="M6 8V15H14V8"
             stroke="#A855F7"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
         />
     </svg>
 );
