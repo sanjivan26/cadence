@@ -37,6 +37,7 @@ IMAGE_DIR = (
     / "pixalbum"
 )
 
+
 def get_current_admin(
     current_user: User = Depends(get_current_user),
 ) -> User:
@@ -98,6 +99,26 @@ async def create_puzzle(
         )
 
     # ---------------------------------------------------------
+    # GENERATE PUZZLE NUMBER
+    # ---------------------------------------------------------
+
+    last_puzzle = db.scalar(
+        select(Puzzle)
+        .where(
+            Puzzle.game_id == game.id,
+        )
+        .order_by(
+            Puzzle.puzzle_number.desc()
+        )
+    )
+
+    next_puzzle_number = (
+        last_puzzle.puzzle_number + 1
+        if last_puzzle
+        else 0
+    )
+
+    # ---------------------------------------------------------
     # IMAGE DIRECTORY
     # ---------------------------------------------------------
 
@@ -145,7 +166,7 @@ async def create_puzzle(
         )
 
 
-# ---------------------------------------------------------
+    # ---------------------------------------------------------
     # UPLOAD GENERATED IMAGES TO SUPABASE STORAGE
     # ---------------------------------------------------------
 
@@ -201,6 +222,7 @@ async def create_puzzle(
 
     db_puzzle = Puzzle(
         game_id=game.id,
+        puzzle_number=next_puzzle_number,
         puzzle_date=puzzle_date,
         status=puzzle_status,
         puzzle_data=puzzle_data,
@@ -217,6 +239,7 @@ async def create_puzzle(
     return {
         "message": "Puzzle created successfully.",
         "puzzle_id": db_puzzle.id,
+        "puzzle_number": db_puzzle.puzzle_number,
         "game": game.name,
         "date": puzzle_date,
         "images": storage_images,
