@@ -1,5 +1,6 @@
-from datetime import datetime, date, timedelta
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
+
 from fastapi import (
     APIRouter,
     Depends,
@@ -25,6 +26,24 @@ router = APIRouter(
 
 
 # =========================================================
+# TIMEZONE
+# =========================================================
+
+IST = ZoneInfo("Asia/Kolkata")
+
+
+def get_today():
+    """
+    Return today's date in India Standard Time.
+
+    Render servers run in UTC, so date.today() can return
+    the previous calendar day around midnight in India.
+    All daily-puzzle logic should use this helper.
+    """
+    return datetime.now(IST).date()
+
+
+# =========================================================
 # HELPER — CALCULATE USER STREAK
 # =========================================================
 
@@ -40,7 +59,7 @@ def calculate_streak(
     NOT count.
 
     Streak dates are based on the puzzle's puzzle_date rather
-    than completed_at, avoiding timezone-related issues.
+    than completed_at.
     """
 
     solved_attempts = db.scalars(
@@ -67,20 +86,11 @@ def calculate_streak(
                 puzzle.puzzle_date
             )
 
-    today = datetime.now(ZoneInfo("Asia/Kolkata")).date()
+    today = get_today()
 
     # -----------------------------------------------------
     # CURRENT STREAK
     # -----------------------------------------------------
-    #
-    # If today's puzzle has been solved, count from today.
-    #
-    # If today's puzzle has NOT been solved yet, count from
-    # yesterday so the current streak remains active during
-    # the current day.
-    #
-    # If yesterday wasn't solved either, the streak is 0.
-    #
 
     current_streak = 0
 
@@ -175,10 +185,12 @@ def get_today_puzzle(
             detail="Game not found",
         )
 
+    today = get_today()
+
     puzzle = db.scalar(
         select(Puzzle).where(
             Puzzle.game_id == game.id,
-            Puzzle.puzzle_date == datetime.now(ZoneInfo("Asia/Kolkata")).date(),
+            Puzzle.puzzle_date == today,
             Puzzle.status == "published",
         )
     )
@@ -230,10 +242,13 @@ def get_today_puzzle(
     )
 
     if completed:
+
         image_url = images.get(
             "original"
         )
+
     else:
+
         image_level = min(
             attempts + 1,
             5,
@@ -358,10 +373,12 @@ def submit_attempt(
             detail="Game not found",
         )
 
+    today = get_today()
+
     puzzle = db.scalar(
         select(Puzzle).where(
             Puzzle.game_id == game.id,
-            Puzzle.puzzle_date == date.today(),
+            Puzzle.puzzle_date == today,
             Puzzle.status == "published",
         )
     )
@@ -435,10 +452,13 @@ def submit_attempt(
         is_correct
         or current_attempt >= 5
     ):
+
         image_url = images.get(
             "original"
         )
+
     else:
+
         image_level = current_attempt + 1
 
         image_url = images.get(
@@ -488,11 +508,8 @@ def submit_attempt(
 
         attempt.completed = True
 
-        # Keep completed_at for history/auditing.
-        attempt.completed_at = (
-            __import__("datetime")
-            .datetime.utcnow()
-        )
+        # Store completion time using IST.
+        attempt.completed_at = datetime.now(IST)
 
         db.commit()
 
@@ -519,10 +536,8 @@ def submit_attempt(
 
         attempt.completed = True
 
-        attempt.completed_at = (
-            __import__("datetime")
-            .datetime.utcnow()
-        )
+        # Store completion time using IST.
+        attempt.completed_at = datetime.now(IST)
 
         db.commit()
 
@@ -597,7 +612,7 @@ def get_progress(
         "best_streak"
     ]
 
-    today = date.today()
+    today = get_today()
 
     # -----------------------------------------------------
     # TODAY'S GAME PROGRESS
@@ -639,8 +654,11 @@ def get_progress(
             )
 
             if today_attempt:
+
                 completed = today_attempt.completed
+
                 solved = today_attempt.solved
+
                 attempts_count = today_attempt.attempts
 
         game_progress.append({
@@ -723,6 +741,7 @@ def get_history(
 
     return history
 
+
 # =========================================================
 # ARCHIVE
 # =========================================================
@@ -752,6 +771,8 @@ def get_archive(
     # BUILD ARCHIVE FOR EACH GAME
     # -----------------------------------------------------
 
+    today = get_today()
+
     for game in games:
 
         puzzles = db.scalars(
@@ -759,7 +780,7 @@ def get_archive(
             .where(
                 Puzzle.game_id == game.id,
                 Puzzle.status == "published",
-                Puzzle.puzzle_date <= date.today(),
+                Puzzle.puzzle_date <= today,
             )
             .order_by(
                 Puzzle.puzzle_number.desc()
@@ -776,10 +797,11 @@ def get_archive(
                     PuzzleAttempt.puzzle_id == puzzle.id,
                 )
             )
-            
+
             image_url = None
 
             if attempt and attempt.completed:
+
                 image_url = puzzle.puzzle_data.get(
                     "images",
                     {}
