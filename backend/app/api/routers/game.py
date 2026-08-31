@@ -1,5 +1,5 @@
-from datetime import date, timedelta
-
+from datetime import datetime, date, timedelta
+from zoneinfo import ZoneInfo
 from fastapi import (
     APIRouter,
     Depends,
@@ -67,7 +67,7 @@ def calculate_streak(
                 puzzle.puzzle_date
             )
 
-    today = date.today()
+    today = datetime.now(ZoneInfo("Asia/Kolkata")).date()
 
     # -----------------------------------------------------
     # CURRENT STREAK
@@ -178,7 +178,7 @@ def get_today_puzzle(
     puzzle = db.scalar(
         select(Puzzle).where(
             Puzzle.game_id == game.id,
-            Puzzle.puzzle_date == date.today(),
+            Puzzle.puzzle_date == datetime.now(ZoneInfo("Asia/Kolkata")).date(),
             Puzzle.status == "published",
         )
     )
