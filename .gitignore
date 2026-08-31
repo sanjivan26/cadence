@@ -40,3 +40,4 @@ build/
 *.egg-info/
 
 notes.txt
+test_audius.py
